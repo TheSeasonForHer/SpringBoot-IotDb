@@ -11,7 +11,6 @@ import com.iotdb.utils.SQLBuilder;
 import com.iotdb.utils.SessionUtil;
 import com.iotdb.utils.TSDataTypeUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.iotdb.common.rpc.thrift.TAggregationType;
 import org.apache.iotdb.isession.pool.SessionDataSetWrapper;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
@@ -69,7 +68,7 @@ public class QueryServiceImpl implements QueryService {
         TimeSeriesDto timeSeriesDto = queryDto.getTimeSeriesDto();
         List<String> measurements = queryDto.getMeasurements();
         if (!CheckParameterUtil.checkQueryTimeSeriesParameter(timeSeriesDto) || CollectionUtil.isEmpty(measurements)) {
-            throw new IllegalArgumentException("please check input parameter of " + timeSeriesDto);
+            throw new ServiceException(Constants.CODE_500,"please check input parameter of " + timeSeriesDto);
         }
         try{
             //执行
@@ -104,7 +103,7 @@ public class QueryServiceImpl implements QueryService {
      *
      * @param queryDto
      */
-    //TODO:检查
+    //TODO:检查参数校验
     @Override
     public List<Map<String, Object>> queryTimeRangeByMeasurement(QueryDto queryDto) {
         TimeSeriesDto timeSeriesDto = queryDto.getTimeSeriesDto();
@@ -113,14 +112,21 @@ public class QueryServiceImpl implements QueryService {
             throw new ServiceException(Constants.CODE_500,"please check input parameter of " + timeSeriesDto + " or the measurements size lt zero");
         }
         try{
-            String devicePath = timeSeriesDto.getPath() + "." + timeSeriesDto.getDevice() + "." + queryDto.getMeasurements().get(0) ;
+            String devicePath = timeSeriesDto.getPath() + "." + timeSeriesDto.getDevice();
             //执行 select MAX_TIME(AV) as maxTime,MIN_TIME(AV) as minTime from root.sg.unit0.historyA.d3
-            String  queryMinAMaxTime = new SQLBuilder().selectAggregation("").build();
+            String testPoint = queryDto.getMeasurements().get(0);
+            if (StringUtils.isBlank(testPoint) || StringUtils.isEmpty(testPoint)){
+                throw new ServiceException(Constants.CODE_500, "测点不能为空");
+            }
+            String  queryMinAMaxTime = new SQLBuilder()
+                    .selectAggregation(String.format("MAX_TIME(%s), MIN_TIME(%s)", testPoint, testPoint))
+                    .from(devicePath)
+                    .build();
             SessionDataSetWrapper dataSet = sessionUtil.getConnection().executeQueryStatement(queryMinAMaxTime);
             //封装结果集
             return getResultListAggregation(dataSet);
         }catch (IoTDBConnectionException | StatementExecutionException e) {
-            throw new RuntimeException(e);
+            throw new ServiceException(Constants.CODE_500, e.getCause().getMessage());
         }
     }
 
@@ -134,12 +140,16 @@ public class QueryServiceImpl implements QueryService {
         TimeSeriesDto timeSeriesDto = queryDto.getTimeSeriesDto();
         List<String> measurements = queryDto.getMeasurements();
         if (!CheckParameterUtil.checkQueryTimeSeriesParameter(timeSeriesDto) || CollectionUtil.isEmpty(measurements)) {
-            throw new IllegalArgumentException("please check input parameter of " + timeSeriesDto);
+            throw new ServiceException(Constants.CODE_500,"please check input parameter of " + timeSeriesDto + " or the measurements size lt zero");
         }
         try{
             //执行
             String devicePath = timeSeriesDto.getPath() + "." + timeSeriesDto.getDevice();
-            String selectType = queryDto.getType().toUpperCase();
+            String selectType = null;
+            if (StringUtils.isEmpty(queryDto.getType()) || StringUtils.isBlank(queryDto.getType())){
+                throw new ServiceException(Constants.CODE_500, "极值类型参数错误");
+            }
+            selectType = queryDto.getType();
             String queryExtremeSql = null;
             switch (selectType){
                 case "MAX_VALUE":
@@ -155,7 +165,7 @@ public class QueryServiceImpl implements QueryService {
                             .build();
                     break;
                 default:
-                    throw new InvalidParameterException("the parameter select type is valid:" + selectType);
+                    throw new ServiceException(Constants.CODE_500,"the parameter select type is valid:" + selectType + ". the parameter should MAX_VALUE or MIN_VALUE");
             }
             SessionDataSetWrapper dataSet = sessionUtil.getConnection().executeQueryStatement(queryExtremeSql);
             //封装结果集
@@ -177,7 +187,7 @@ public class QueryServiceImpl implements QueryService {
         TimeSeriesDto timeSeriesDto = queryDto.getTimeSeriesDto();
         List<String> measurements = queryDto.getMeasurements();
         if (!CheckParameterUtil.checkQueryTimeSeriesParameter(timeSeriesDto) || CollectionUtil.isEmpty(measurements)) {
-            throw new IllegalArgumentException("please check input parameter of " + timeSeriesDto);
+            throw new ServiceException(Constants.CODE_500,"please check input parameter of " + timeSeriesDto + " or the measurements size lt zero");
         }
         try{
             //执行
@@ -185,11 +195,17 @@ public class QueryServiceImpl implements QueryService {
             SQLBuilder queryCountByTime = new SQLBuilder()
                     .select("count(" + queryDto.getMeasurements().get(0) + ")")
                     .from(devicePath);
-            long start = Long.parseLong(queryDto.getStartTime());
-            long end = Long.parseLong(queryDto.getEndTime());
-            if (start < end){
-                queryCountByTime.where("time >=" + start + " and time <=" + end);
+            String startTime = queryDto.getStartTime();
+            String endTime = queryDto.getEndTime();
+            if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)){
+                throw new ServiceException(Constants.CODE_500, "查询时间不能为空");
             }
+            long start = Long.parseLong(startTime);
+            long end = Long.parseLong(endTime);
+            if (start >= end){
+                throw new ServiceException(Constants.CODE_500, "查询开始时间不能大于结束时间");
+            }
+            queryCountByTime.where("time >=" + start + " and time <=" + end);
             SessionDataSetWrapper dataSet = sessionUtil.getConnection().executeQueryStatement(queryCountByTime.build());
             //封装结果集
             return getResultListAggregation(dataSet);

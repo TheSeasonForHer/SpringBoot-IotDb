@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: IotDb_SpringBoot
+  devtools:
+    restart:
+      enabled: true
+
