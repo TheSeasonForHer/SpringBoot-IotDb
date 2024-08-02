@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -218,8 +217,25 @@ public class QueryServiceImpl implements QueryService {
      * 获取测点有数据的时间段 group by session
      */
     @Override
-    public void queryDataGroupBySession() {
-
+    public List<Map<String, Object>> queryDataGroupBySession(QueryDto queryDto) {
+        TimeSeriesDto timeSeriesDto = queryDto.getTimeSeriesDto();
+        List<String> measurements = queryDto.getMeasurements();
+        if (!CheckParameterUtil.checkQueryTimeSeriesParameter(timeSeriesDto) || CollectionUtil.isEmpty(measurements)) {
+            throw new ServiceException(Constants.CODE_500,"please check input parameter of " + timeSeriesDto + " or the measurements size lt zero");
+        }
+        try{
+            //执行
+            String devicePath = timeSeriesDto.getPath() + "." + timeSeriesDto.getDevice();
+            SQLBuilder queryGroupBySession = new SQLBuilder()
+                    .select("__endTime")
+                    .from(devicePath)
+                    .groupBy(String.format("session(%s)", "1d"));
+            SessionDataSetWrapper dataSet = sessionUtil.getConnection().executeQueryStatement(queryGroupBySession.build());
+            //封装结果集
+            return getResultListAggregation(dataSet);
+        }catch (IoTDBConnectionException | StatementExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

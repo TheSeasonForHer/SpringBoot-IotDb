@@ -70,7 +70,8 @@ public class QueryController {
      * 设备，测点
      */
     @PostMapping("/groupBySession")
-    public Result getDataGroupBySession(){
+    public Result getDataGroupBySession(@RequestBody QueryDto queryDto){
+        queryService.queryDataGroupBySession(queryDto);
         return null;
     }
 

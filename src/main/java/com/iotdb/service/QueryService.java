@@ -37,7 +37,7 @@ public interface QueryService {
     /**
      * 获取测点有数据的时间段
      */
-    public void queryDataGroupBySession();
+    public List<Map<String, Object>> queryDataGroupBySession(QueryDto queryDto);
 
 
 }
