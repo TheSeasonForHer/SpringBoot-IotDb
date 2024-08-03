@@ -3,8 +3,6 @@ package com.iotdb.controller;
 import com.iotdb.common.Result;
 import com.iotdb.dto.QueryDto;
 import com.iotdb.service.QueryService;
-import org.apache.iotdb.rpc.IoTDBConnectionException;
-import org.apache.iotdb.rpc.StatementExecutionException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +22,7 @@ public class QueryController {
      * @return 数据列表
      */
     @PostMapping("/queryByMeasurementList")
-    public Result getDataByMeasurementList(@RequestBody QueryDto queryDto) throws IoTDBConnectionException, StatementExecutionException {
+    public Result getDataByMeasurementList(@RequestBody QueryDto queryDto) {
         return Result.success("查询成功", queryService.queryByMeasurementList(queryDto));
     }
 

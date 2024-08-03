@@ -1,67 +1,99 @@
 package com.iotdb.utils;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.iotdb.common.Constants;
 import com.iotdb.dto.DataDto;
+import com.iotdb.dto.QueryDto;
 import com.iotdb.dto.TimeSeriesDto;
+import com.iotdb.exception.ServiceException;
+import org.apache.commons.lang3.StringUtils;
+import org.yaml.snakeyaml.scanner.Constant;
 
-import java.sql.Time;
+import java.util.List;
 
 public class CheckParameterUtil {
     /**
      * 检查数据完整性-- 时间序列必须完整
-     * @param seriesDto
-     * @return
+     * 这里只检查属性的值，对象是否初始化需要再外层做
+     * @param seriesDto : 时间序列对象
      */
-    public static boolean checkTimeSeriesParameter(TimeSeriesDto seriesDto) {
-        if (seriesDto.getPath() != null
-                && seriesDto.getDevice() != null
-                && seriesDto.getTestPointName() != null
-                && seriesDto.getTestPointType() !=null){
-            return true;
+    public static void checkTimeSeriesParameterIsBlank(TimeSeriesDto seriesDto) {
+        if (StringUtils.isBlank(seriesDto.getPath()) || StringUtils.isEmpty(seriesDto.getPath())){
+            throw new ServiceException(Constants.CODE_400, "数据库名称参数异常");
         }
-        return false;
+        if (StringUtils.isBlank(seriesDto.getDevice()) || StringUtils.isEmpty(seriesDto.getDevice())){
+            throw new ServiceException(Constants.CODE_400, "设备参数异常");
+        }
+        if (StringUtils.isBlank(seriesDto.getTestPointName()) || StringUtils.isEmpty(seriesDto.getTestPointName())){
+            throw new ServiceException(Constants.CODE_400, "测点参数异常");
+        }
+        if (StringUtils.isBlank(seriesDto.getTestPointType()) || StringUtils.isEmpty(seriesDto.getTestPointType())){
+            throw new ServiceException(Constants.CODE_400, "测点参数异常");
+        }
     }
 
     /**
-     * 查询的时候的时间序列参数校验-->数据库和设备不为空就行
-     * @param seriesDto
-     * @return 不为空返回 true 为空返回 false
+     * 查询的时候的时间序列参数校验
+     * @param seriesDto : 查询中的时间序列对象只需要校验 数据库 和 设备
      */
-    public static boolean checkQueryTimeSeriesParameter(TimeSeriesDto seriesDto){
-        return seriesDto.getPath() != null && seriesDto.getDevice() != null;
+    public static void checkQueryTimeSeriesParameter(TimeSeriesDto seriesDto){
+        if (StringUtils.isBlank(seriesDto.getPath()) || StringUtils.isEmpty(seriesDto.getPath())){
+            throw new ServiceException(Constants.CODE_400, "数据库名称参数异常");
+        }
+        if (StringUtils.isBlank(seriesDto.getDevice()) || StringUtils.isEmpty(seriesDto.getDevice())){
+            throw new ServiceException(Constants.CODE_400, "设备参数异常");
+        }
     }
     /**
-     * 校验时间
+     * 根据时间是否可选，校验时间是否正确，并且是否在一个范围内
+     * 需要多走一个判断
      */
-    public static boolean checkTime(String startTime, String endTime){
-        if (startTime == null || endTime == null){
-            return false;
+    public static void checkRangeTime(QueryDto queryDto){
+        String startTime = queryDto.getStartTime();
+        String endTime = queryDto.getEndTime();
+        if (StringUtils.isBlank(startTime)
+                || StringUtils.isBlank(endTime)
+                || StringUtils.isEmpty(startTime)
+                || StringUtils.isEmpty(endTime)){
+            throw new ServiceException(Constants.CODE_400, "查询时间不能为空");
         }
         long start = Long.parseLong(startTime);
         long end = Long.parseLong(endTime);
-        if (start > end){
-            return false;
+        if (start >= end){
+            throw new ServiceException(Constants.CODE_400, "查询开始时间不能大于结束时间");
         }
-        return true;
     }
 
     /**
-     * 检查参数是否有效
-     * @param dataDto
-     * @return
+     * 检查插入数据是否有效
+     * @param dataList : 插入数据
      */
-    public static boolean checkParameter(DataDto dataDto) {
-        TimeSeriesDto timeSeriesDto = dataDto.getTimeSeriesDto();
-        if (ObjectUtil.isEmpty(timeSeriesDto)){
-            return false;
+    public static void checkInsertData(List<DataDto.Data> dataList) {
+        if (dataList.isEmpty()){
+            throw new ServiceException(Constants.CODE_400, "插入数据不能为空");
         }
-        if (!CheckParameterUtil.checkTimeSeriesParameter(timeSeriesDto)){
-            return false;
-        }
-        if (CollectionUtil.isEmpty(dataDto.getDataList())){
-            return false;
-        }
-        return true;
     }
+
+    /**
+     * 检查测点参数是否合法
+     * @param measurements : 测点参数
+     * @param flag ： 是否为 1 个测点参数
+     */
+    public static void checkMeasurements(List<String> measurements, boolean flag){
+        if (CollectionUtil.isEmpty(measurements)){
+            throw new ServiceException(Constants.CODE_400,"测点参数为空");
+        }
+        if (CollectionUtil.contains(measurements, "")){
+            throw new ServiceException(Constants.CODE_400, "测点参数中包含了空白字符串");
+        }
+        if (flag && measurements.size() > Constants.NUMBER_1){
+            throw new ServiceException(Constants.CODE_400, "测点参数数量与需求不对等");
+        }
+    }
+    /**
+     * TODO
+     * 用逗号拼接字符串
+     */
 }

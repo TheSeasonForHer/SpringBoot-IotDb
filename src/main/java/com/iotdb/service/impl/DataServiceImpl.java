@@ -1,12 +1,15 @@
 package com.iotdb.service.impl;
 
+import com.iotdb.common.Constants;
 import com.iotdb.dto.DataDto;
 import com.iotdb.dto.QueryDto;
 import com.iotdb.dto.TimeSeriesDto;
+import com.iotdb.exception.ServiceException;
 import com.iotdb.service.DataService;
 import com.iotdb.utils.CheckParameterUtil;
 import com.iotdb.utils.SessionUtil;
 import com.iotdb.utils.TSDataTypeUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.tsfile.enums.TSDataType;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -26,40 +30,52 @@ public class DataServiceImpl implements DataService {
     private SessionUtil sessionUtil;
     /**
      * 根据测点插入数据
-     * @param dataDto
-     * @return
      */
     @Override
-    public boolean insertRecordByTimeSeries(DataDto dataDto) throws IoTDBConnectionException, StatementExecutionException {
-        //判断参数
-        if (CheckParameterUtil.checkParameter(dataDto)){
-            TimeSeriesDto timeSeriesDto = dataDto.getTimeSeriesDto();
-            //过滤掉空数数据
-            List<DataDto.Data> dataList = dataDto.getDataList().stream().filter(data -> data.getTime() > 0).collect(Collectors.toList());
-            //contruct the path to store
-            String devicePath = timeSeriesDto.getPath() + "." + timeSeriesDto.getDevice();
-
-            List<MeasurementSchema> schemaList = new ArrayList<>();
-            TSDataType dataType = TSDataTypeUtil.getTsDataType(timeSeriesDto.getTestPointType());
-            schemaList.add(new MeasurementSchema(timeSeriesDto.getTestPointName(), dataType));
-
-            Tablet tablet = new Tablet(devicePath, schemaList, dataList.size());
-
-            for (long row = 0; row < dataList.size(); row++) {
-                int rowIndex = tablet.rowSize++;
-                tablet.addTimestamp(rowIndex, dataList.get((int) row).getTime());
-                for (int s = 0; s < 1; s++) {
-                    tablet.addValue(schemaList.get(s).getMeasurementId(), rowIndex, TSDataTypeUtil.getValueByData(dataType.getType(),dataList.get((int) row).getData()));
-                }
-                if (tablet.rowSize == tablet.getMaxRowNumber()) {
-                    sessionUtil.getConnection().insertTablet(tablet, true);
-                    tablet.reset();
-                }
-            }
-//            sessionPool.close();
-            return true;
+    public boolean insertRecordByTimeSeries(DataDto dataDto) {
+        // 判断参数
+        TimeSeriesDto timeSeriesDto = dataDto.getTimeSeriesDto();
+        List<DataDto.Data> dataList = dataDto.getDataList();
+        if (Objects.isNull(timeSeriesDto)){
+            throw new ServiceException(Constants.CODE_400, "时间序列参数不能为空");
         }
-        return false;
+        CheckParameterUtil.checkTimeSeriesParameterIsBlank(timeSeriesDto);
+        CheckParameterUtil.checkInsertData(dataList);
+        // 过滤掉空数数据
+         dataList = dataDto.getDataList().stream()
+                .filter(
+                        data -> data.getTime() < Constants.NUMBER_0L
+                                || StringUtils.isBlank(data.getData())
+                                || StringUtils.isEmpty(data.getData())
+                )
+                .collect(Collectors.toList());
+
+        // 封装要插入的测点
+        String devicePath = timeSeriesDto.getPath() + "." + timeSeriesDto.getDevice();
+        List<MeasurementSchema> schemaList = new ArrayList<>();
+        TSDataType dataType = TSDataTypeUtil.getTsDataType(timeSeriesDto.getTestPointType());
+        schemaList.add(new MeasurementSchema(timeSeriesDto.getTestPointName(), dataType));
+
+        // 构建 tablet 并且填充数据
+        Tablet tablet = new Tablet(devicePath, schemaList, dataList.size());
+        for (long row = 0; row < dataList.size(); row++) {
+            int rowIndex = tablet.rowSize++;
+            tablet.addTimestamp(rowIndex, dataList.get((int) row).getTime());
+            for (int s = 0; s < 1; s++) {
+                tablet.addValue(schemaList.get(s).getMeasurementId(), rowIndex, TSDataTypeUtil.getValueByData(dataType.getType(),dataList.get((int) row).getData()));
+            }
+
+            // 如果达到可以插入的数量，就进行插入
+            if (tablet.rowSize == tablet.getMaxRowNumber()) {
+                try{
+                    sessionUtil.getConnection().insertTablet(tablet, true);
+                }catch (IoTDBConnectionException | StatementExecutionException e){
+                    throw new ServiceException(Constants.CODE_500, e.getMessage());
+                }
+                tablet.reset();
+            }
+        }
+        return true;
     }
 
     /**
@@ -70,31 +86,32 @@ public class DataServiceImpl implements DataService {
     @Override
     public boolean deleteDataByTimeRange(QueryDto queryDto) {
         TimeSeriesDto timeSeriesDto = queryDto.getTimeSeriesDto();
-        //参数校验成功
-        if (CheckParameterUtil.checkTimeSeriesParameter(timeSeriesDto)){
-            //添加路径
+        //  参数校验成功
+        if (!Objects.isNull(timeSeriesDto)){
+            CheckParameterUtil.checkQueryTimeSeriesParameter(timeSeriesDto);
+            //  添加路径
             List<String> pathList = new ArrayList<>();
             String testPointPath = timeSeriesDto.getPath() + "." + timeSeriesDto.getDevice() + "." + timeSeriesDto.getTestPointName();
             pathList.add(testPointPath);
             try {
-                //看看存在不
                 if (!sessionUtil.getConnection().checkTimeseriesExists(testPointPath)) {
-                    throw  new RuntimeException("时间序列不存在");
+                    throw  new ServiceException(Constants.CODE_400, "时间序列不存在,无法删除数据");
                 }
-                //根据是否有时间进行删除
-                if (queryDto.getStartTime() != "" && queryDto.getEndTime() != "" && Long.parseLong(queryDto.getStartTime()) < Long.parseLong(queryDto.getEndTime())) {
+                //todo:更换时间检测工具
+                //  根据是否有时间进行删除
+                if (!Objects.equals(queryDto.getStartTime(), "") && !Objects.equals(queryDto.getEndTime(), "") && Long.parseLong(queryDto.getStartTime()) < Long.parseLong(queryDto.getEndTime())) {
                     //删除时间范围内的数据
                     sessionUtil.getConnection().deleteData(pathList, Long.parseLong(queryDto.getStartTime()), Long.parseLong(queryDto.getEndTime()));
                 }else{
-                    //没有时间范围就指定了一个最大值 就相当于删除全部数据
+                    //  没有时间范围就指定了一个最大值 就相当于删除全部数据
                     sessionUtil.getConnection().deleteData(pathList, Long.MAX_VALUE);
                 }
             }catch (IoTDBConnectionException | StatementExecutionException e){
-                throw new RuntimeException(e);
+                throw new ServiceException(Constants.CODE_500, e.getMessage());
             }
             return true;
         }
-        return false;
+        throw new ServiceException(Constants.CODE_400, "时间序列参数异常");
     }
 
 }

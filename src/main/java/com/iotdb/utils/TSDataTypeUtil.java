@@ -2,7 +2,6 @@ package com.iotdb.utils;
 
 
 import cn.hutool.core.date.DateTime;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.tsfile.enums.TSDataType;
 import org.apache.tsfile.read.common.Field;
 
