@@ -1,25 +1,34 @@
 package com.iotdb.utils;
 
-import org.apache.iotdb.session.Session;
+import com.iotdb.config.IoTDBProperties;
+import com.iotdb.service.impl.QueryServiceImpl;
 import org.apache.iotdb.session.pool.SessionPool;
-import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Component
+import javax.annotation.Resource;
+
+@Configuration
 public class SessionUtil {
-    private static SessionPool session = null;
-    private SessionUtil(){}
-    public SessionPool getConnection(){
-        if (session == null){
-            synchronized (SessionUtil.class){
-                session = new SessionPool.Builder()
-                        .host("172.20.31.111")
-                        .port(6667)
-                        .user("root")
-                        .password("root")
-                        .maxSize(1000)
-                        .build();
-            }
-        }
-        return session;
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryServiceImpl.class);
+    @Resource
+    IoTDBProperties ioTDBProperties;
+
+    @Bean
+    public SessionPool sessionPool(){
+        LOGGER.info(ioTDBProperties.getHost());
+        LOGGER.info(String.valueOf(ioTDBProperties.getPort()));
+        LOGGER.info(ioTDBProperties.getUsername());
+        LOGGER.info(ioTDBProperties.getPassword());
+        LOGGER.info(String.valueOf(ioTDBProperties.getMaxSize()));
+        return new SessionPool.Builder()
+                .host(ioTDBProperties.getHost())
+                .port(ioTDBProperties.getPort())
+                .user(ioTDBProperties.getUsername())
+                .password(ioTDBProperties.getPassword())
+                .maxSize(ioTDBProperties.getMaxSize())
+                .build();
     }
 }

@@ -1,6 +1,7 @@
-package com.iotdb.exception;
+package com.iotdb.handler;
 
 import com.iotdb.common.Result;
+import com.iotdb.exception.ServiceException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
