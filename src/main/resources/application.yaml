@@ -4,4 +4,10 @@ spring:
   devtools:
     restart:
       enabled: true
+iotdb:
+  host: 127.0.0.1
+  port: 6667
+  username: root
+  password: root
+  maxSize: 10
 
