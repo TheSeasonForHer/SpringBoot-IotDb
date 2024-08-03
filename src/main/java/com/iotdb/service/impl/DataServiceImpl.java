@@ -12,9 +12,12 @@ import com.iotdb.utils.TSDataTypeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
+import org.apache.iotdb.session.pool.SessionPool;
 import org.apache.tsfile.enums.TSDataType;
 import org.apache.tsfile.write.record.Tablet;
 import org.apache.tsfile.write.schema.MeasurementSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -26,8 +29,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class DataServiceImpl implements DataService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryServiceImpl.class);
     @Resource
-    private SessionUtil sessionUtil;
+    private SessionPool sessionService;
+
     /**
      * 根据测点插入数据
      */
@@ -68,7 +74,7 @@ public class DataServiceImpl implements DataService {
             // 如果达到可以插入的数量，就进行插入
             if (tablet.rowSize == tablet.getMaxRowNumber()) {
                 try{
-                    sessionUtil.getConnection().insertTablet(tablet, true);
+                    sessionService.insertTablet(tablet, true);
                 }catch (IoTDBConnectionException | StatementExecutionException e){
                     throw new ServiceException(Constants.CODE_500, e.getMessage());
                 }
@@ -94,17 +100,25 @@ public class DataServiceImpl implements DataService {
             String testPointPath = timeSeriesDto.getPath() + "." + timeSeriesDto.getDevice() + "." + timeSeriesDto.getTestPointName();
             pathList.add(testPointPath);
             try {
-                if (!sessionUtil.getConnection().checkTimeseriesExists(testPointPath)) {
+                if (!sessionService.checkTimeseriesExists(testPointPath)) {
                     throw  new ServiceException(Constants.CODE_400, "时间序列不存在,无法删除数据");
                 }
-                //todo:更换时间检测工具
-                //  根据是否有时间进行删除
-                if (!Objects.equals(queryDto.getStartTime(), "") && !Objects.equals(queryDto.getEndTime(), "") && Long.parseLong(queryDto.getStartTime()) < Long.parseLong(queryDto.getEndTime())) {
+
+                /**
+                 * 为了实现时间的可选，我们这里使用异常抛出的方式来进行判断，
+                 * 如果抛出了异常，我们就查询所有数据
+                 * 没有抛出异常，就根据时间范围查询数据
+                 */
+                try {
+                    CheckParameterUtil.checkRangeTime(queryDto);
+                    long start = Long.parseLong(queryDto.getStartTime());
+                    long end = Long.parseLong(queryDto.getStartTime());
                     //删除时间范围内的数据
-                    sessionUtil.getConnection().deleteData(pathList, Long.parseLong(queryDto.getStartTime()), Long.parseLong(queryDto.getEndTime()));
-                }else{
-                    //  没有时间范围就指定了一个最大值 就相当于删除全部数据
-                    sessionUtil.getConnection().deleteData(pathList, Long.MAX_VALUE);
+                    sessionService.deleteData(pathList, start, end);
+                    LOGGER.info(testPointPath.toUpperCase());
+                }catch (ServiceException serviceException){
+                    sessionService.deleteData(pathList, Long.MAX_VALUE);
+                    LOGGER.info(testPointPath.toUpperCase());
                 }
             }catch (IoTDBConnectionException | StatementExecutionException e){
                 throw new ServiceException(Constants.CODE_500, e.getMessage());

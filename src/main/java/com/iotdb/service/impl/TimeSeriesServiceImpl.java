@@ -5,10 +5,10 @@ import com.iotdb.dto.TimeSeriesDto;
 import com.iotdb.exception.ServiceException;
 import com.iotdb.service.TimeSeriesService;
 import com.iotdb.utils.CheckParameterUtil;
-import com.iotdb.utils.SessionUtil;
 import com.iotdb.utils.TSDataTypeUtil;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
+import org.apache.iotdb.session.pool.SessionPool;
 import org.apache.tsfile.file.metadata.enums.CompressionType;
 import org.apache.tsfile.file.metadata.enums.TSEncoding;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ import java.util.Objects;
 public class TimeSeriesServiceImpl implements TimeSeriesService {
 
     @Resource
-    private SessionUtil sessionUtil;
+    private SessionPool sessionService;
     /**
      * 创建时间序列
      */
@@ -39,8 +39,12 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
             //  获取连接
             String path = seriesDto.getPath() + "." + seriesDto.getDevice() + "." + seriesDto.getTestPointName();
             try {
-                if(!sessionUtil.getConnection().checkTimeseriesExists(path)){
-                    sessionUtil.getConnection().createTimeseries(path, TSDataTypeUtil.getTsDataType(seriesDto.getTestPointType()), TSEncoding.PLAIN, CompressionType.SNAPPY);
+                if(!sessionService.checkTimeseriesExists(path)){
+                    sessionService.createTimeseries(path,
+                            TSDataTypeUtil.getTsDataType(seriesDto.getTestPointType()),
+                            TSEncoding.PLAIN,
+                            CompressionType.SNAPPY
+                    );
                     timeSeriesNameList.add(path);
                 }
             } catch (IoTDBConnectionException | StatementExecutionException e) {

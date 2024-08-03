@@ -1,15 +1,12 @@
 package com.iotdb.utils;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.ObjectUtil;
 import com.iotdb.common.Constants;
 import com.iotdb.dto.DataDto;
 import com.iotdb.dto.QueryDto;
 import com.iotdb.dto.TimeSeriesDto;
 import com.iotdb.exception.ServiceException;
 import org.apache.commons.lang3.StringUtils;
-import org.yaml.snakeyaml.scanner.Constant;
 
 import java.util.List;
 
@@ -20,16 +17,13 @@ public class CheckParameterUtil {
      * @param seriesDto : 时间序列对象
      */
     public static void checkTimeSeriesParameterIsBlank(TimeSeriesDto seriesDto) {
-        if (StringUtils.isBlank(seriesDto.getPath()) || StringUtils.isEmpty(seriesDto.getPath())){
-            throw new ServiceException(Constants.CODE_400, "数据库名称参数异常");
-        }
-        if (StringUtils.isBlank(seriesDto.getDevice()) || StringUtils.isEmpty(seriesDto.getDevice())){
-            throw new ServiceException(Constants.CODE_400, "设备参数异常");
-        }
-        if (StringUtils.isBlank(seriesDto.getTestPointName()) || StringUtils.isEmpty(seriesDto.getTestPointName())){
+        checkQueryTimeSeriesParameter(seriesDto);
+        if (StringUtils.isBlank(seriesDto.getTestPointName())
+                || StringUtils.isEmpty(seriesDto.getTestPointName())){
             throw new ServiceException(Constants.CODE_400, "测点参数异常");
         }
-        if (StringUtils.isBlank(seriesDto.getTestPointType()) || StringUtils.isEmpty(seriesDto.getTestPointType())){
+        if (StringUtils.isBlank(seriesDto.getTestPointType())
+                || StringUtils.isEmpty(seriesDto.getTestPointType())){
             throw new ServiceException(Constants.CODE_400, "测点参数异常");
         }
     }
@@ -39,10 +33,12 @@ public class CheckParameterUtil {
      * @param seriesDto : 查询中的时间序列对象只需要校验 数据库 和 设备
      */
     public static void checkQueryTimeSeriesParameter(TimeSeriesDto seriesDto){
-        if (StringUtils.isBlank(seriesDto.getPath()) || StringUtils.isEmpty(seriesDto.getPath())){
+        if (StringUtils.isBlank(seriesDto.getPath())
+                || StringUtils.isEmpty(seriesDto.getPath())){
             throw new ServiceException(Constants.CODE_400, "数据库名称参数异常");
         }
-        if (StringUtils.isBlank(seriesDto.getDevice()) || StringUtils.isEmpty(seriesDto.getDevice())){
+        if (StringUtils.isBlank(seriesDto.getDevice())
+                || StringUtils.isEmpty(seriesDto.getDevice())){
             throw new ServiceException(Constants.CODE_400, "设备参数异常");
         }
     }
@@ -92,8 +88,4 @@ public class CheckParameterUtil {
             throw new ServiceException(Constants.CODE_400, "测点参数数量与需求不对等");
         }
     }
-    /**
-     * TODO
-     * 用逗号拼接字符串
-     */
 }

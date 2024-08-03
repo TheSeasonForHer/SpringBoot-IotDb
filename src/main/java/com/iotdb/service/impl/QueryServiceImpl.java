@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.iotdb.isession.pool.SessionDataSetWrapper;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
+import org.apache.iotdb.session.pool.SessionPool;
 import org.apache.tsfile.read.common.Field;
 import org.apache.tsfile.read.common.RowRecord;
 import org.slf4j.Logger;
@@ -32,6 +33,8 @@ public class QueryServiceImpl implements QueryService {
 
     @Resource
     private SessionUtil sessionUtil;
+    @Resource
+    private SessionPool sessionService;
     private static ExecutorService service;
 
     @Override
@@ -59,7 +62,7 @@ public class QueryServiceImpl implements QueryService {
             LOGGER.info(queryByLimit.toUpperCase());
 
             // 封装结果集
-            SessionDataSetWrapper dataSet = sessionUtil.getConnection().executeQueryStatement(queryByLimit);
+            SessionDataSetWrapper dataSet = sessionService.executeQueryStatement(queryByLimit);
             List<Map<String, Object>> resultList = getResultList(dataSet);
             dataSet.close();
             return resultList;
@@ -98,7 +101,7 @@ public class QueryServiceImpl implements QueryService {
             LOGGER.info(queryByTimeRangeBuilder.build().toUpperCase());
 
             // 封装结果集
-            SessionDataSetWrapper dataSet = sessionUtil.getConnection().executeQueryStatement(queryByTimeRangeBuilder.build());
+            SessionDataSetWrapper dataSet = sessionService.executeQueryStatement(queryByTimeRangeBuilder.build());
             List<Map<String, Object>> resultList = getResultList(dataSet);
             dataSet.close();
             return resultList;
@@ -137,7 +140,7 @@ public class QueryServiceImpl implements QueryService {
             LOGGER.info(queryMinAMaxTime);
 
             //封装结果集
-            SessionDataSetWrapper dataSet = sessionUtil.getConnection().executeQueryStatement(queryMinAMaxTime);
+            SessionDataSetWrapper dataSet = sessionService.executeQueryStatement(queryMinAMaxTime);
             List<Map<String, Object>> resultList = getResultListAggregation(dataSet);
             dataSet.close();
             return resultList;
@@ -167,7 +170,7 @@ public class QueryServiceImpl implements QueryService {
             String queryExtremeSql = getQueryExtremeSql(queryDto, devicePath);
 
             // 封装结果集
-            SessionDataSetWrapper dataSet = sessionUtil.getConnection().executeQueryStatement(queryExtremeSql);
+            SessionDataSetWrapper dataSet = sessionService.executeQueryStatement(queryExtremeSql);
             List<Map<String, Object>> resultList = getResultListAggregation(dataSet);
             dataSet.close();
             return resultList;
@@ -246,7 +249,7 @@ public class QueryServiceImpl implements QueryService {
             }
 
             // 封装结果集
-            SessionDataSetWrapper dataSet = sessionUtil.getConnection().executeQueryStatement(queryCountByTime.build());
+            SessionDataSetWrapper dataSet = sessionService.executeQueryStatement(queryCountByTime.build());
             List<Map<String, Object>> resultList = getResultListAggregation(dataSet);
             dataSet.close();
             return resultList;
@@ -277,7 +280,7 @@ public class QueryServiceImpl implements QueryService {
                     .groupBy(String.format("session(%s)", "1d"));
 
             // 封装结果集
-            SessionDataSetWrapper dataSet = sessionUtil.getConnection().executeQueryStatement(queryGroupBySession.build());
+            SessionDataSetWrapper dataSet = sessionService.executeQueryStatement(queryGroupBySession.build());
             List<Map<String, Object>> resultList = getResultListAggregation(dataSet);
             dataSet.close();
             return resultList;
@@ -299,10 +302,7 @@ public class QueryServiceImpl implements QueryService {
             while (dataSet.hasNext()){
                 RowRecord record = dataSet.next();
                 Map<String, Object> map = new HashMap<>();
-                List<Field> fields = record.getFields();
-                for (int i = 0; i < columnNames.size(); i++) {
-                    map.put(columnNames.get(i), fields.get(i).getDataType() != null ? TSDataTypeUtil.getValueByFiled(fields.get(i)) : null);
-                }
+                getDataByRecord(record, columnNames, map);
                 resultList.add(map);
             }
         }catch (IoTDBConnectionException | StatementExecutionException e) {
@@ -318,21 +318,26 @@ public class QueryServiceImpl implements QueryService {
     private static List<Map<String, Object>> getResultList(SessionDataSetWrapper dataSet){
         List<Map<String, Object>> resultList = new LinkedList<>();
         List<String> columnNames = dataSet.getColumnNames();
-
+        //移除时间列，因为结果集中返回的是测点的数据，不包含时间
+        columnNames.remove(0);
         try{
             while (dataSet.hasNext()){
                 RowRecord record = dataSet.next();
                 Map<String, Object> map = new HashMap<>();
                 map.put("time", record.getTimestamp());
-                List<Field> fields = record.getFields();
-                for (int i = 0; i < columnNames.size() - 1; i++) {
-                    map.put(columnNames.get(i+1), fields.get(i).getDataType() != null ? TSDataTypeUtil.getValueByFiled(fields.get(i)) : null);
-                }
+                getDataByRecord(record, columnNames, map);
                 resultList.add(map);
             }
+            return resultList;
         }catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new ServiceException(Constants.CODE_500, e.getMessage());
         }
-        return resultList;
+    }
+
+    private static void getDataByRecord(RowRecord record, List<String> columnNames, Map<String, Object> map) {
+        List<Field> fields = record.getFields();
+        for (int i = 0; i < columnNames.size(); i++) {
+            map.put(columnNames.get(i), fields.get(i).getDataType() != null ? TSDataTypeUtil.getValueByFiled(fields.get(i)) : null);
+        }
     }
 }
