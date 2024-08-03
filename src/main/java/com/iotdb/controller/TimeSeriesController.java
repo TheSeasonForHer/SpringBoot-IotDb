@@ -23,10 +23,7 @@ public class TimeSeriesController {
     //todo:跟换校验方式
     @PostMapping("/createTimeSeries")
     public Result<?> createTimeSeries(@RequestBody List<TimeSeriesDto> timeSeriesDto) {
-        if (!CollectionUtil.isEmpty(timeSeriesDto)){
-            return Result.ok(timeSeriesService.createTimeSeries(timeSeriesDto));
-        }
-        return Result.fail("创建失败");
+        return Result.ok(timeSeriesService.createTimeSeries(timeSeriesDto));
     }
     @GetMapping("/hello")
     public Result<?> hello(){

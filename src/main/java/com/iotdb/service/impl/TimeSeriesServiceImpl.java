@@ -1,5 +1,6 @@
 package com.iotdb.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.iotdb.dto.TimeSeriesDto;
 import com.iotdb.exception.ServiceException;
 import com.iotdb.service.TimeSeriesService;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.iotdb.enums.StatusCodeEnum.SYSTEM_ERROR;
+import static com.iotdb.enums.StatusCodeEnum.VALID_ERROR;
 
 @Service
 public class TimeSeriesServiceImpl implements TimeSeriesService {
@@ -29,6 +31,9 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
      */
     @Override
     public List<String> createTimeSeries(List<TimeSeriesDto> timeSeriesDto) {
+        if (CollectionUtil.isEmpty(timeSeriesDto)) {
+            throw new ServiceException(VALID_ERROR.getCode(), "时间序列参数异常");
+        }
         //  返回的时序列名
         List<String> timeSeriesNameList = new ArrayList<>();
         for (TimeSeriesDto seriesDto : timeSeriesDto) {
