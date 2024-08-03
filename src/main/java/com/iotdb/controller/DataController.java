@@ -1,6 +1,6 @@
 package com.iotdb.controller;
 
-import com.iotdb.common.Result;
+import com.iotdb.vo.Result;
 import com.iotdb.dto.DataDto;
 import com.iotdb.dto.QueryDto;
 import com.iotdb.service.DataService;
@@ -21,13 +21,13 @@ public class DataController {
 
     /**
      *
-     * @param dataDto
+     * @param dataDto : 数据
      * @return 成功失败
      */
     @PostMapping("/insertDataByTimeSeries")
-    public Result insertData(@RequestBody DataDto dataDto) throws IoTDBConnectionException, StatementExecutionException {
+    public Result<?> insertData(@RequestBody DataDto dataDto) throws IoTDBConnectionException, StatementExecutionException {
         boolean b = dataService.insertRecordByTimeSeries(dataDto);
-        return b ? Result.success("插入成功") : Result.error("插入失败");
+        return b ? Result.ok("插入成功") : Result.fail("插入失败");
     }
 
     /**
@@ -36,8 +36,8 @@ public class DataController {
      * @return
      */
     @PostMapping("/deleteDataByTimeRange")
-    public Result deleteDataByTimeRange(@RequestBody QueryDto queryDto){
+    public Result<?> deleteDataByTimeRange(@RequestBody QueryDto queryDto){
         boolean b = dataService.deleteDataByTimeRange(queryDto);
-        return b ? Result.success("删除成功") : Result.error("删除失败");
+        return b ? Result.ok("删除成功") : Result.fail("删除失败");
     }
 }

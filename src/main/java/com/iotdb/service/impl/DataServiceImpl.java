@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.iotdb.enums.StatusCodeEnum.VALID_ERROR;
+
 
 @Service
 public class DataServiceImpl implements DataService {
@@ -43,7 +45,7 @@ public class DataServiceImpl implements DataService {
         TimeSeriesDto timeSeriesDto = dataDto.getTimeSeriesDto();
         List<DataDto.Data> dataList = dataDto.getDataList();
         if (Objects.isNull(timeSeriesDto)){
-            throw new ServiceException(Constants.CODE_400, "时间序列参数不能为空");
+            throw new ServiceException(VALID_ERROR.getCode(), "时间序列参数不能为空");
         }
         CheckParameterUtil.checkTimeSeriesParameterIsBlank(timeSeriesDto);
         CheckParameterUtil.checkInsertData(dataList);
@@ -76,7 +78,7 @@ public class DataServiceImpl implements DataService {
                 try{
                     sessionService.insertTablet(tablet, true);
                 }catch (IoTDBConnectionException | StatementExecutionException e){
-                    throw new ServiceException(Constants.CODE_500, e.getMessage());
+                    throw new ServiceException(VALID_ERROR.getCode(), e.getMessage());
                 }
                 tablet.reset();
             }
@@ -101,7 +103,7 @@ public class DataServiceImpl implements DataService {
             pathList.add(testPointPath);
             try {
                 if (!sessionService.checkTimeseriesExists(testPointPath)) {
-                    throw  new ServiceException(Constants.CODE_400, "时间序列不存在,无法删除数据");
+                    throw  new ServiceException(VALID_ERROR.getCode(), "时间序列不存在,无法删除数据");
                 }
 
                 /**
@@ -121,11 +123,11 @@ public class DataServiceImpl implements DataService {
                     LOGGER.info(testPointPath.toUpperCase());
                 }
             }catch (IoTDBConnectionException | StatementExecutionException e){
-                throw new ServiceException(Constants.CODE_500, e.getMessage());
+                throw new ServiceException(VALID_ERROR.getCode(), e.getMessage());
             }
             return true;
         }
-        throw new ServiceException(Constants.CODE_400, "时间序列参数异常");
+        throw new ServiceException(VALID_ERROR.getCode(), "时间序列参数异常");
     }
 
 }

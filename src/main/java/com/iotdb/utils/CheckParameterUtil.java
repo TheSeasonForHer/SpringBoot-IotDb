@@ -2,6 +2,7 @@ package com.iotdb.utils;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.iotdb.common.Constants;
+import static com.iotdb.enums.StatusCodeEnum.*;
 import com.iotdb.dto.DataDto;
 import com.iotdb.dto.QueryDto;
 import com.iotdb.dto.TimeSeriesDto;
@@ -20,11 +21,11 @@ public class CheckParameterUtil {
         checkQueryTimeSeriesParameter(seriesDto);
         if (StringUtils.isBlank(seriesDto.getTestPointName())
                 || StringUtils.isEmpty(seriesDto.getTestPointName())){
-            throw new ServiceException(Constants.CODE_400, "测点参数异常");
+            throw new ServiceException(VALID_ERROR.getCode(), "测点参数异常");
         }
         if (StringUtils.isBlank(seriesDto.getTestPointType())
                 || StringUtils.isEmpty(seriesDto.getTestPointType())){
-            throw new ServiceException(Constants.CODE_400, "测点参数异常");
+            throw new ServiceException(VALID_ERROR.getCode(), "测点参数异常");
         }
     }
 
@@ -35,11 +36,11 @@ public class CheckParameterUtil {
     public static void checkQueryTimeSeriesParameter(TimeSeriesDto seriesDto){
         if (StringUtils.isBlank(seriesDto.getPath())
                 || StringUtils.isEmpty(seriesDto.getPath())){
-            throw new ServiceException(Constants.CODE_400, "数据库名称参数异常");
+            throw new ServiceException(VALID_ERROR.getCode(), "数据库名称参数异常");
         }
         if (StringUtils.isBlank(seriesDto.getDevice())
                 || StringUtils.isEmpty(seriesDto.getDevice())){
-            throw new ServiceException(Constants.CODE_400, "设备参数异常");
+            throw new ServiceException(VALID_ERROR.getCode(), "设备参数异常");
         }
     }
     /**
@@ -53,12 +54,12 @@ public class CheckParameterUtil {
                 || StringUtils.isBlank(endTime)
                 || StringUtils.isEmpty(startTime)
                 || StringUtils.isEmpty(endTime)){
-            throw new ServiceException(Constants.CODE_400, "查询时间不能为空");
+            throw new ServiceException(VALID_ERROR.getCode(), "查询时间不能为空");
         }
         long start = Long.parseLong(startTime);
         long end = Long.parseLong(endTime);
         if (start >= end){
-            throw new ServiceException(Constants.CODE_400, "查询开始时间不能大于结束时间");
+            throw new ServiceException(VALID_ERROR.getCode(), "查询开始时间不能大于结束时间");
         }
     }
 
@@ -68,7 +69,7 @@ public class CheckParameterUtil {
      */
     public static void checkInsertData(List<DataDto.Data> dataList) {
         if (dataList.isEmpty()){
-            throw new ServiceException(Constants.CODE_400, "插入数据不能为空");
+            throw new ServiceException(VALID_ERROR.getCode(), "插入数据不能为空");
         }
     }
 
@@ -79,13 +80,13 @@ public class CheckParameterUtil {
      */
     public static void checkMeasurements(List<String> measurements, boolean flag){
         if (CollectionUtil.isEmpty(measurements)){
-            throw new ServiceException(Constants.CODE_400,"测点参数为空");
+            throw new ServiceException(VALID_ERROR.getCode(),"测点参数为空");
         }
         if (CollectionUtil.contains(measurements, "")){
-            throw new ServiceException(Constants.CODE_400, "测点参数中包含了空白字符串");
+            throw new ServiceException(VALID_ERROR.getCode(), "测点参数中包含了空白字符串");
         }
         if (flag && measurements.size() > Constants.NUMBER_1){
-            throw new ServiceException(Constants.CODE_400, "测点参数数量与需求不对等");
+            throw new ServiceException(VALID_ERROR.getCode(), "测点参数数量与需求不对等");
         }
     }
 }

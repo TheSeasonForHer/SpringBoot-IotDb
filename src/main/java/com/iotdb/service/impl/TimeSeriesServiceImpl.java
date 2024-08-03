@@ -1,6 +1,5 @@
 package com.iotdb.service.impl;
 
-import com.iotdb.common.Constants;
 import com.iotdb.dto.TimeSeriesDto;
 import com.iotdb.exception.ServiceException;
 import com.iotdb.service.TimeSeriesService;
@@ -17,6 +16,8 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.iotdb.enums.StatusCodeEnum.SYSTEM_ERROR;
 
 @Service
 public class TimeSeriesServiceImpl implements TimeSeriesService {
@@ -48,7 +49,7 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
                     timeSeriesNameList.add(path);
                 }
             } catch (IoTDBConnectionException | StatementExecutionException e) {
-                throw new ServiceException(Constants.CODE_500, e.getMessage());
+                throw new ServiceException(SYSTEM_ERROR.getCode(), e.getMessage());
             }
         }
         return timeSeriesNameList;

@@ -1,6 +1,6 @@
 package com.iotdb.controller;
 
-import com.iotdb.common.Result;
+import com.iotdb.vo.Result;
 import com.iotdb.dto.QueryDto;
 import com.iotdb.service.QueryService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,8 +22,8 @@ public class QueryController {
      * @return 数据列表
      */
     @PostMapping("/queryByMeasurementList")
-    public Result getDataByMeasurementList(@RequestBody QueryDto queryDto) {
-        return Result.success("查询成功", queryService.queryByMeasurementList(queryDto));
+    public Result<?> getDataByMeasurementList(@RequestBody QueryDto queryDto) {
+        return Result.ok(queryService.queryByMeasurementList(queryDto));
     }
 
     /**
@@ -32,8 +32,8 @@ public class QueryController {
      * @return : 测点数据列表List<map>
      */
     @PostMapping("/queryByTimeRange")
-    public Result getDataByTimeRange(@RequestBody QueryDto queryDto){
-        return Result.success("查询成功", queryService.queryByTime(queryDto));
+    public Result<?> getDataByTimeRange(@RequestBody QueryDto queryDto){
+        return Result.ok(queryService.queryByTime(queryDto));
     }
     /**
      * 获取测点的最早时间和最晚时间
@@ -41,8 +41,8 @@ public class QueryController {
      * @return : 数据列表，MAX_TIME/MIN_TIME
      */
     @PostMapping("/queryStartTimeAndEndTime")
-    public Result getDataStartAndEndTime(@RequestBody QueryDto queryDto){
-        return Result.success("查询成功", queryService.queryTimeRangeByMeasurement(queryDto));
+    public Result<?> getDataStartAndEndTime(@RequestBody QueryDto queryDto){
+        return Result.ok(queryService.queryTimeRangeByMeasurement(queryDto));
     }
     /**
      * 根据极值类型返回对应的极值
@@ -50,8 +50,8 @@ public class QueryController {
      * @return : 数据列表，MAX_VALUE/MIN_VALUE
      */
     @PostMapping("/queryByExtremeType")
-    public Result getDataByExtremeType(@RequestBody QueryDto queryDto){
-        return Result.success("查询成功", queryService.queryByExtremeType(queryDto));
+    public Result<?> getDataByExtremeType(@RequestBody QueryDto queryDto){
+        return Result.ok(queryService.queryByExtremeType(queryDto));
     }
 
     /**
@@ -60,17 +60,16 @@ public class QueryController {
      * @return
      */
     @PostMapping("/getDataCountByMeasurement")
-    public Result getDataCountByMeasurement(@RequestBody QueryDto queryDto){
-        return Result.success("查询成功", queryService.queryDataCountByMeasurement(queryDto));
+    public Result<?> getDataCountByMeasurement(@RequestBody QueryDto queryDto){
+        return Result.ok(queryService.queryDataCountByMeasurement(queryDto));
     }
     /**
      * 获取测点有数据的时间段
      * 设备，测点
      */
     @PostMapping("/groupBySession")
-    public Result getDataGroupBySession(@RequestBody QueryDto queryDto){
-        queryService.queryDataGroupBySession(queryDto);
-        return null;
+    public Result<?> getDataGroupBySession(@RequestBody QueryDto queryDto){
+        return Result.ok(queryService.queryDataGroupBySession(queryDto));
     }
 
 

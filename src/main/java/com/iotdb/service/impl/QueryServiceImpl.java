@@ -26,6 +26,8 @@ import java.util.concurrent.ExecutorService;
 
 import static com.iotdb.common.Constants.NUMBER_0L;
 import static com.iotdb.common.Constants.NUMBER_20000L;
+import static com.iotdb.enums.StatusCodeEnum.SYSTEM_ERROR;
+import static com.iotdb.enums.StatusCodeEnum.VALID_ERROR;
 
 @Service
 public class QueryServiceImpl implements QueryService {
@@ -42,7 +44,7 @@ public class QueryServiceImpl implements QueryService {
         // 参数校验
         TimeSeriesDto timeSeriesDto = queryDto.getTimeSeriesDto();
         if (Objects.isNull(timeSeriesDto)){
-            throw new ServiceException(Constants.CODE_400, "时间序列为空");
+            throw new ServiceException(VALID_ERROR.getCode(), "时间序列为空");
         }
         List<String> measurements = queryDto.getMeasurements();
         CheckParameterUtil.checkQueryTimeSeriesParameter(timeSeriesDto);
@@ -67,7 +69,7 @@ public class QueryServiceImpl implements QueryService {
             dataSet.close();
             return resultList;
         }catch (IoTDBConnectionException | StatementExecutionException e) {
-            throw new ServiceException(Constants.CODE_500,e.getMessage());
+            throw new ServiceException(SYSTEM_ERROR.getCode(),e.getMessage());
         }
     }
 
@@ -82,7 +84,7 @@ public class QueryServiceImpl implements QueryService {
         TimeSeriesDto timeSeriesDto = queryDto.getTimeSeriesDto();
         List<String> measurements = queryDto.getMeasurements();
         if (Objects.isNull(timeSeriesDto)){
-            throw new ServiceException(Constants.CODE_400, "时间序列为空");
+            throw new ServiceException(VALID_ERROR.getCode(), "时间序列为空");
         }
         CheckParameterUtil.checkQueryTimeSeriesParameter(timeSeriesDto);
         CheckParameterUtil.checkMeasurements(measurements, true);
@@ -106,7 +108,7 @@ public class QueryServiceImpl implements QueryService {
             dataSet.close();
             return resultList;
         }catch (IoTDBConnectionException | StatementExecutionException e) {
-            throw new ServiceException(Constants.CODE_500, e.getMessage());
+            throw new ServiceException(SYSTEM_ERROR.getCode(), e.getMessage());
         }
     }
 
@@ -121,7 +123,7 @@ public class QueryServiceImpl implements QueryService {
         TimeSeriesDto timeSeriesDto = queryDto.getTimeSeriesDto();
         List<String> measurements = queryDto.getMeasurements();
         if (Objects.isNull(timeSeriesDto)){
-            throw new ServiceException(Constants.CODE_400, "时间序列为空");
+            throw new ServiceException(VALID_ERROR.getCode(), "时间序列为空");
         }
         CheckParameterUtil.checkQueryTimeSeriesParameter(timeSeriesDto);
         CheckParameterUtil.checkMeasurements(measurements, true);
@@ -131,7 +133,7 @@ public class QueryServiceImpl implements QueryService {
             String devicePath = timeSeriesDto.getPath() + "." + timeSeriesDto.getDevice();
             String testPoint = queryDto.getMeasurements().get(0);
             if (StringUtils.isBlank(testPoint) || StringUtils.isEmpty(testPoint)){
-                throw new ServiceException(Constants.CODE_400, "测点不能为空");
+                throw new ServiceException(VALID_ERROR.getCode(), "测点不能为空");
             }
             String  queryMinAMaxTime = new SQLBuilder()
                     .selectAggregation(String.format("MAX_TIME(%s), MIN_TIME(%s)", testPoint, testPoint))
@@ -145,7 +147,7 @@ public class QueryServiceImpl implements QueryService {
             dataSet.close();
             return resultList;
         }catch (IoTDBConnectionException | StatementExecutionException e) {
-            throw new ServiceException(Constants.CODE_500, e.getMessage());
+            throw new ServiceException(SYSTEM_ERROR.getCode(), e.getMessage());
         }
     }
 
@@ -159,7 +161,7 @@ public class QueryServiceImpl implements QueryService {
         TimeSeriesDto timeSeriesDto = queryDto.getTimeSeriesDto();
         List<String> measurements = queryDto.getMeasurements();
         if (Objects.isNull(timeSeriesDto)){
-            throw new ServiceException(Constants.CODE_400, "时间序列为空");
+            throw new ServiceException(VALID_ERROR.getCode(), "时间序列为空");
         }
         CheckParameterUtil.checkQueryTimeSeriesParameter(timeSeriesDto);
         CheckParameterUtil.checkMeasurements(measurements, true);
@@ -175,7 +177,7 @@ public class QueryServiceImpl implements QueryService {
             dataSet.close();
             return resultList;
         }catch (IoTDBConnectionException | StatementExecutionException e) {
-            throw new ServiceException(Constants.CODE_500, e.getMessage());
+            throw new ServiceException(SYSTEM_ERROR.getCode(), e.getMessage());
         }
     }
 
@@ -188,7 +190,7 @@ public class QueryServiceImpl implements QueryService {
     private static String getQueryExtremeSql(QueryDto queryDto, String devicePath) {
         String selectType = queryDto.getType();
         if (StringUtils.isEmpty(selectType) || StringUtils.isBlank(selectType)){
-            throw new ServiceException(Constants.CODE_400, "极值类型参数错误");
+            throw new ServiceException(VALID_ERROR.getCode(), "极值类型参数错误");
         }
 
         String queryExtremeSql;
@@ -206,7 +208,7 @@ public class QueryServiceImpl implements QueryService {
                         .build();
                 break;
             default:
-                throw new ServiceException(Constants.CODE_400,"极值类型参数不合法");
+                throw new ServiceException(SYSTEM_ERROR.getCode(),"极值类型参数不合法");
         }
         return queryExtremeSql;
     }
@@ -220,7 +222,7 @@ public class QueryServiceImpl implements QueryService {
         TimeSeriesDto timeSeriesDto = queryDto.getTimeSeriesDto();
         List<String> measurements = queryDto.getMeasurements();
         if (Objects.isNull(timeSeriesDto)){
-            throw new ServiceException(Constants.CODE_400, "时间序列为空");
+            throw new ServiceException(VALID_ERROR.getCode(), "时间序列为空");
         }
         CheckParameterUtil.checkQueryTimeSeriesParameter(timeSeriesDto);
         CheckParameterUtil.checkMeasurements(measurements, true);
@@ -254,7 +256,7 @@ public class QueryServiceImpl implements QueryService {
             dataSet.close();
             return resultList;
         }catch (IoTDBConnectionException | StatementExecutionException e) {
-            throw new ServiceException(Constants.CODE_500, e.getMessage());
+            throw new ServiceException(SYSTEM_ERROR.getCode(), e.getMessage());
         }
     }
 
@@ -266,7 +268,7 @@ public class QueryServiceImpl implements QueryService {
         TimeSeriesDto timeSeriesDto = queryDto.getTimeSeriesDto();
         List<String> measurements = queryDto.getMeasurements();
         if (Objects.isNull(timeSeriesDto)){
-            throw new ServiceException(Constants.CODE_400, "时间序列为空");
+            throw new ServiceException(VALID_ERROR.getCode(), "时间序列为空");
         }
         CheckParameterUtil.checkQueryTimeSeriesParameter(timeSeriesDto);
         CheckParameterUtil.checkMeasurements(measurements, true);
@@ -285,7 +287,7 @@ public class QueryServiceImpl implements QueryService {
             dataSet.close();
             return resultList;
         }catch (IoTDBConnectionException | StatementExecutionException e) {
-            throw new ServiceException(Constants.CODE_500, e.getMessage());
+            throw new ServiceException(SYSTEM_ERROR.getCode(), e.getMessage());
         }
     }
 
@@ -306,7 +308,7 @@ public class QueryServiceImpl implements QueryService {
                 resultList.add(map);
             }
         }catch (IoTDBConnectionException | StatementExecutionException e) {
-            throw new ServiceException(Constants.CODE_500, e.getMessage());
+            throw new ServiceException(SYSTEM_ERROR.getCode(), e.getMessage());
         }
         return resultList;
     }
@@ -330,7 +332,7 @@ public class QueryServiceImpl implements QueryService {
             }
             return resultList;
         }catch (IoTDBConnectionException | StatementExecutionException e) {
-            throw new ServiceException(Constants.CODE_500, e.getMessage());
+            throw new ServiceException(SYSTEM_ERROR.getCode(), e.getMessage());
         }
     }
 
