@@ -4,7 +4,10 @@ import com.iotdb.dto.QueryDto;
 
 import java.util.List;
 import java.util.Map;
-
+/**
+ * @author tjb
+ * @date 2024/8/2
+ */
 public interface QueryService {
     /**
      * 根据测点列表查询数据

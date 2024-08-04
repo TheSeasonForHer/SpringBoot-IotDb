@@ -4,7 +4,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-
+/**
+ * @author tjb
+ * @date 2024/8/2
+ */
 @Configuration
 public class CorsConfig {
 

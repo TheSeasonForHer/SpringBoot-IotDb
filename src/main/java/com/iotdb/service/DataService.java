@@ -4,7 +4,10 @@ import com.iotdb.dto.DataDto;
 import com.iotdb.dto.QueryDto;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
-
+/**
+ * @author tjb
+ * @date 2024/8/2
+ */
 public interface DataService {
     /**
      * 根据测点插入数据

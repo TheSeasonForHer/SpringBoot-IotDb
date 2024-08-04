@@ -7,8 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * @author tjb
- * @version 1.0
- * @date 2024/8/3 20:51
+ * @date 2024/8/2
  */
 @Data
 @Configuration

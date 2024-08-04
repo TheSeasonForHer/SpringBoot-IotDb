@@ -5,11 +5,9 @@ import static com.iotdb.enums.StatusCodeEnum.*;
 import lombok.Data;
 
 /**
- * 接口返回类
- *
  * @author tjb
- * @date 2024/08/3
- **/
+ * @date 2024/8/2
+ */
 @Data
 public class Result<T> {
 

@@ -7,7 +7,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
-
+/**
+ * @author tjb
+ * @date 2024/8/2
+ */
 @RestController
 @RequestMapping("/timeSeries")
 public class TimeSeriesController {

@@ -4,7 +4,10 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
+/**
+ * @author tjb
+ * @date 2024/8/2
+ */
 public class SQLBuilder {
 
     private StringBuilder sql;

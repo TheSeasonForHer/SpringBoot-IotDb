@@ -7,7 +7,6 @@ import com.iotdb.dto.TimeSeriesDto;
 import com.iotdb.exception.ServiceException;
 import com.iotdb.service.DataService;
 import com.iotdb.utils.CheckParameterUtil;
-import com.iotdb.utils.SessionUtil;
 import com.iotdb.utils.TSDataTypeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
@@ -25,10 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
 import static com.iotdb.enums.StatusCodeEnum.VALID_ERROR;
 
-
+/**
+ * @author tjb
+ * @date 2024/8/2
+ */
 @Service
 public class DataServiceImpl implements DataService {
 

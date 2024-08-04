@@ -4,11 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 接口状态码枚举
- *
  * @author tjb
- * @date 2024/08/3
- **/
+ * @date 2024/8/2
+ */
 @Getter
 @AllArgsConstructor
 public enum StatusCodeEnum {

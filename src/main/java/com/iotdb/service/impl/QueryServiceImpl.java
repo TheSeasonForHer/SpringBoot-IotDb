@@ -1,6 +1,5 @@
 package com.iotdb.service.impl;
 
-import com.iotdb.common.Constants;
 import com.iotdb.dto.QueryDto;
 import com.iotdb.dto.TimeSeriesDto;
 import com.iotdb.exception.ServiceException;
@@ -19,16 +18,17 @@ import org.apache.tsfile.read.common.RowRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-
 import static com.iotdb.common.Constants.NUMBER_0L;
 import static com.iotdb.common.Constants.NUMBER_20000L;
 import static com.iotdb.enums.StatusCodeEnum.SYSTEM_ERROR;
 import static com.iotdb.enums.StatusCodeEnum.VALID_ERROR;
-
+/**
+ * @author tjb
+ * @date 2024/8/2
+ */
 @Service
 public class QueryServiceImpl implements QueryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryServiceImpl.class);

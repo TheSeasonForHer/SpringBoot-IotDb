@@ -3,9 +3,8 @@ package com.iotdb.exception;
 import lombok.Getter;
 
 /**
- * @Date: 2022/8/21/021 上午 9:18
- * @Author: ljm
- * @Description:
+ * @author tjb
+ * @date 2024/8/2
  */
 @Getter
 public class ServiceException extends RuntimeException {

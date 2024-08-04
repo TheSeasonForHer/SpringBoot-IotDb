@@ -10,7 +10,10 @@ import com.iotdb.exception.ServiceException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
-
+/**
+ * @author tjb
+ * @date 2024/8/2
+ */
 public class CheckParameterUtil {
     /**
      * 检查数据完整性-- 时间序列必须完整

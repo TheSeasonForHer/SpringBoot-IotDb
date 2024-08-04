@@ -9,7 +9,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Resource;
-
+/**
+ * @author tjb
+ * @date 2024/8/2
+ */
 @Configuration
 public class SessionUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryServiceImpl.class);

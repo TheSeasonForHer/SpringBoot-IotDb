@@ -4,7 +4,10 @@ package com.iotdb.utils;
 import cn.hutool.core.date.DateTime;
 import org.apache.tsfile.enums.TSDataType;
 import org.apache.tsfile.read.common.Field;
-
+/**
+ * @author tjb
+ * @date 2024/8/2
+ */
 public class TSDataTypeUtil {
     public static TSDataType getTsDataType(String type) {
         String upperCase = type.toUpperCase();
