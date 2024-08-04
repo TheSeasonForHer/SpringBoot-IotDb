@@ -11,7 +11,7 @@ public interface DataService {
      * @param dataDto
      * @return
      */
-    public boolean insertRecordByTimeSeries(DataDto dataDto) throws IoTDBConnectionException, StatementExecutionException;
+    public boolean insertRecordByTimeSeries(DataDto dataDto);
 
     /**
      * 删除测点数据

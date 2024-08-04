@@ -25,7 +25,7 @@ public class DataController {
      * @return 成功失败
      */
     @PostMapping("/insertDataByTimeSeries")
-    public Result<?> insertData(@RequestBody DataDto dataDto) throws IoTDBConnectionException, StatementExecutionException {
+    public Result<?> insertData(@RequestBody DataDto dataDto){
         boolean b = dataService.insertRecordByTimeSeries(dataDto);
         return b ? Result.ok("插入成功") : Result.fail("插入失败");
     }
