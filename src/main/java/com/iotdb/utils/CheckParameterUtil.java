@@ -8,6 +8,8 @@ import com.iotdb.dto.QueryDto;
 import com.iotdb.dto.TimeSeriesDto;
 import com.iotdb.exception.ServiceException;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 /**
@@ -15,6 +17,7 @@ import java.util.List;
  * @date 2024/8/2
  */
 public class CheckParameterUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CheckParameterUtil.class);
     /**
      * 检查数据完整性-- 时间序列必须完整
      * 这里只检查属性的值，对象是否初始化需要再外层做
@@ -74,6 +77,15 @@ public class CheckParameterUtil {
         if (dataList.isEmpty()){
             throw new ServiceException(VALID_ERROR.getCode(), "插入数据不能为空");
         }
+        dataList.forEach(data -> {
+            if (data.getTime() < Constants.NUMBER_0L){
+                LOGGER.warn("插入数据中有非法的时间:{}", data.getTime());
+            }
+            if (StringUtils.isBlank(data.getData())
+                    || StringUtils.isEmpty(data.getData())){
+                LOGGER.warn("插入数据中有非法数据:{}", data.getData());
+            }
+        });
     }
 
     /**

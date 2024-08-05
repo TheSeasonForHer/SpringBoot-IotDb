@@ -53,11 +53,11 @@ public class DataServiceImpl implements DataService {
         // 过滤掉空数数据
          dataList = dataDto.getDataList().stream()
                 .filter(
-                        data -> data.getTime() < Constants.NUMBER_0L
-                                || StringUtils.isBlank(data.getData())
-                                || StringUtils.isEmpty(data.getData())
+                        data -> data.getTime() >= Constants.NUMBER_0L
+                                && !StringUtils.isBlank(data.getData())
+                                && !StringUtils.isEmpty(data.getData())
                 )
-                .collect(Collectors.toList());
+                 .collect(Collectors.toList());
 
         // 封装要插入的测点
         String devicePath = timeSeriesDto.getPath() + "." + timeSeriesDto.getDevice();
