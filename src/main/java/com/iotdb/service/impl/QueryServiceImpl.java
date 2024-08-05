@@ -275,9 +275,11 @@ public class QueryServiceImpl implements QueryService {
                     .select("__endTime", String.format("count(%s)", measurements.get(0)))
                     .from(devicePath)
                     .groupBy(String.format("session(%s)", "1d"));
+            LOGGER.info(queryGroupBySession.build().toUpperCase());
 
             // 封装结果集
             SessionDataSetWrapper dataSet = sessionService.executeQueryStatement(queryGroupBySession.build());
+            // 这里也有聚合查询的 count(measurement)， 为什么不用聚合获取结果的方法？因为有时间列，聚合查询获取结果是会下标越界的
             List<Map<String, Object>> resultList = getResultList(dataSet);
             dataSet.close();
             return resultList;
@@ -316,7 +318,7 @@ public class QueryServiceImpl implements QueryService {
     private static List<Map<String, Object>> getResultList(SessionDataSetWrapper dataSet){
         List<Map<String, Object>> resultList = new LinkedList<>();
         List<String> columnNames = dataSet.getColumnNames();
-        //移除时间列，因为结果集中返回的是测点的数据，不包含时间
+        // 移除时间列，因为结果集中返回的是测点的数据，不包含时间
         columnNames.remove(0);
         try{
             while (dataSet.hasNext()){
@@ -332,6 +334,7 @@ public class QueryServiceImpl implements QueryService {
         }
     }
 
+    // 注意：通过getFields获取的数据列，不包含时间列的值
     private static void getDataByRecord(RowRecord record, List<String> columnNames, Map<String, Object> map) {
         List<Field> fields = record.getFields();
         for (int i = 0; i < columnNames.size(); i++) {
