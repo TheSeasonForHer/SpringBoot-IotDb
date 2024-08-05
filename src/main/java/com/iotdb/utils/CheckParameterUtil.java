@@ -78,7 +78,8 @@ public class CheckParameterUtil {
             throw new ServiceException(VALID_ERROR.getCode(), "插入数据不能为空");
         }
         dataList.forEach(data -> {
-            if (data.getTime() < Constants.NUMBER_0L){
+            if (StringUtils.isBlank(data.getTime())
+                    || StringUtils.isEmpty(data.getTime())){
                 LOGGER.warn("插入数据中有非法的时间:{}", data.getTime());
             }
             if (StringUtils.isBlank(data.getData())

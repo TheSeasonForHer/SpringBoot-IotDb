@@ -53,7 +53,8 @@ public class DataServiceImpl implements DataService {
         // 过滤掉空数数据
          dataList = dataDto.getDataList().stream()
                 .filter(
-                        data -> data.getTime() >= Constants.NUMBER_0L
+                        data -> !StringUtils.isBlank(data.getTime())
+                                && !StringUtils.isEmpty(data.getTime())
                                 && !StringUtils.isBlank(data.getData())
                                 && !StringUtils.isEmpty(data.getData())
                 )
@@ -69,11 +70,12 @@ public class DataServiceImpl implements DataService {
         Tablet tablet = new Tablet(devicePath, schemaList, dataList.size());
         for (long row = 0; row < dataList.size(); row++) {
             int rowIndex = tablet.rowSize++;
-            tablet.addTimestamp(rowIndex, dataList.get((int) row).getTime());
+            // 添加时间戳
+            tablet.addTimestamp(rowIndex, Long.parseLong(dataList.get((int) row).getTime()));
+            // 根据每一行测点数量进行插入数据
             for (int s = 0; s < 1; s++) {
                 tablet.addValue(schemaList.get(s).getMeasurementId(), rowIndex, TSDataTypeUtil.getValueByData(dataType.getType(),dataList.get((int) row).getData()));
             }
-
             // 如果达到可以插入的数量，就进行插入
             if (tablet.rowSize == tablet.getMaxRowNumber()) {
                 try{
