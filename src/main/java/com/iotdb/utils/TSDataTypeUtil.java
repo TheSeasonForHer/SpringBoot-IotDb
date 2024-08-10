@@ -110,7 +110,7 @@ public class TSDataTypeUtil {
                 // return STRING;
                 return data;
             default:
-                throw new IllegalArgumentException("Invalid input: " + dataType);
+                throw new ServiceException(VALID_ERROR.getCode(),"Invalid input type: " + dataType);
         }
     }
 }
