@@ -5,7 +5,7 @@ spring:
     restart:
       enabled: true
 iotdb:
-  host: 127.0.0.1
+  host: 172.20.31.111
   port: 6667
   username: root
   password: root

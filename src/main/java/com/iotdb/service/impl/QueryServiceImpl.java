@@ -6,7 +6,6 @@ import com.iotdb.exception.ServiceException;
 import com.iotdb.service.QueryService;
 import com.iotdb.utils.CheckParameterUtil;
 import com.iotdb.utils.SQLBuilder;
-import com.iotdb.utils.SessionUtil;
 import com.iotdb.utils.TSDataTypeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.iotdb.isession.pool.SessionDataSetWrapper;
@@ -20,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 import static com.iotdb.common.Constants.NUMBER_0L;
 import static com.iotdb.common.Constants.NUMBER_20000L;
 import static com.iotdb.enums.StatusCodeEnum.SYSTEM_ERROR;
@@ -34,10 +32,7 @@ public class QueryServiceImpl implements QueryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryServiceImpl.class);
 
     @Resource
-    private SessionUtil sessionUtil;
-    @Resource
     private SessionPool sessionService;
-    private static ExecutorService service;
 
     @Override
     public List<Map<String, Object>>  queryByMeasurementList(QueryDto queryDto) {
@@ -98,7 +93,7 @@ public class QueryServiceImpl implements QueryService {
 
             CheckParameterUtil.checkRangeTime(queryDto);
             long start = Long.parseLong(queryDto.getStartTime());
-            long end = Long.parseLong(queryDto.getStartTime());
+            long end = Long.parseLong(queryDto.getEndTime());
             queryByTimeRangeBuilder.where("time >=" + start + " and time <=" + end);
             LOGGER.info(queryByTimeRangeBuilder.build().toUpperCase());
 
@@ -242,7 +237,7 @@ public class QueryServiceImpl implements QueryService {
             try {
                 CheckParameterUtil.checkRangeTime(queryDto);
                 long start = Long.parseLong(queryDto.getStartTime());
-                long end = Long.parseLong(queryDto.getStartTime());
+                long end = Long.parseLong(queryDto.getEndTime());
                 queryCountByTime.where("time >=" + start + " and time <=" + end);
                 LOGGER.info(queryCountByTime.build().toUpperCase());
             }catch (ServiceException serviceException){
@@ -280,10 +275,12 @@ public class QueryServiceImpl implements QueryService {
                     .select("__endTime", String.format("count(%s)", measurements.get(0)))
                     .from(devicePath)
                     .groupBy(String.format("session(%s)", "1d"));
+            LOGGER.info(queryGroupBySession.build().toUpperCase());
 
             // 封装结果集
             SessionDataSetWrapper dataSet = sessionService.executeQueryStatement(queryGroupBySession.build());
-            List<Map<String, Object>> resultList = getResultListAggregation(dataSet);
+            // 这里也有聚合查询的 count(measurement)， 为什么不用聚合获取结果的方法？因为有时间列，聚合查询获取结果是会下标越界的
+            List<Map<String, Object>> resultList = getResultList(dataSet);
             dataSet.close();
             return resultList;
         }catch (IoTDBConnectionException | StatementExecutionException e) {
@@ -307,10 +304,11 @@ public class QueryServiceImpl implements QueryService {
                 getDataByRecord(record, columnNames, map);
                 resultList.add(map);
             }
+            return resultList;
+
         }catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new ServiceException(SYSTEM_ERROR.getCode(), e.getMessage());
         }
-        return resultList;
     }
     /**
      * 获取结果集
@@ -320,7 +318,7 @@ public class QueryServiceImpl implements QueryService {
     private static List<Map<String, Object>> getResultList(SessionDataSetWrapper dataSet){
         List<Map<String, Object>> resultList = new LinkedList<>();
         List<String> columnNames = dataSet.getColumnNames();
-        //移除时间列，因为结果集中返回的是测点的数据，不包含时间
+        // 移除时间列，因为结果集中返回的是测点的数据，不包含时间
         columnNames.remove(0);
         try{
             while (dataSet.hasNext()){
@@ -336,6 +334,7 @@ public class QueryServiceImpl implements QueryService {
         }
     }
 
+    // 注意：通过getFields获取的数据列，不包含时间列的值
     private static void getDataByRecord(RowRecord record, List<String> columnNames, Map<String, Object> map) {
         List<Field> fields = record.getFields();
         for (int i = 0; i < columnNames.size(); i++) {
