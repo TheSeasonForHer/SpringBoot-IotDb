@@ -92,8 +92,8 @@ public class QueryServiceImpl implements QueryService {
                     .from(devicePath);
 
             CheckParameterUtil.checkRangeTime(queryDto);
-            long start = Long.parseLong(queryDto.getStartTime());
-            long end = Long.parseLong(queryDto.getEndTime());
+            long start = queryDto.getStartTime();
+            long end = queryDto.getEndTime();
             queryByTimeRangeBuilder.where("time >=" + start + " and time <=" + end);
             LOGGER.info(queryByTimeRangeBuilder.build().toUpperCase());
 
@@ -236,8 +236,8 @@ public class QueryServiceImpl implements QueryService {
              */
             try {
                 CheckParameterUtil.checkRangeTime(queryDto);
-                long start = Long.parseLong(queryDto.getStartTime());
-                long end = Long.parseLong(queryDto.getEndTime());
+                long start = queryDto.getStartTime();
+                long end = queryDto.getEndTime();
                 queryCountByTime.where("time >=" + start + " and time <=" + end);
                 LOGGER.info(queryCountByTime.build().toUpperCase());
             }catch (ServiceException serviceException){

@@ -53,10 +53,10 @@ public class DataServiceImpl implements DataService {
         // 过滤掉空数数据
          dataList = dataDto.getDataList().stream()
                 .filter(
-                        data -> !StringUtils.isBlank(data.getTime())
-                                && !StringUtils.isEmpty(data.getTime())
-                                && !StringUtils.isBlank(data.getData())
-                                && !StringUtils.isEmpty(data.getData())
+                        data -> !StringUtils.isBlank(data.getTime().toString())
+                                && !StringUtils.isEmpty(data.getTime().toString())
+                                && !StringUtils.isBlank(data.getData().toString())
+                                && !StringUtils.isEmpty(data.getData().toString())
                 )
                  .collect(Collectors.toList());
 
@@ -71,10 +71,10 @@ public class DataServiceImpl implements DataService {
         for (long row = 0; row < dataList.size(); row++) {
             int rowIndex = tablet.rowSize++;
             // 添加时间戳
-            tablet.addTimestamp(rowIndex, Long.parseLong(dataList.get((int) row).getTime()));
+            tablet.addTimestamp(rowIndex, dataList.get((int) row).getTime());
             // 根据每一行测点数量进行插入数据
             for (int s = 0; s < 1; s++) {
-                tablet.addValue(schemaList.get(s).getMeasurementId(), rowIndex, TSDataTypeUtil.getValueByData(dataType.getType(),dataList.get((int) row).getData()));
+                tablet.addValue(schemaList.get(s).getMeasurementId(), rowIndex, TSDataTypeUtil.getValueByData(dataType.getType(),dataList.get((int) row).getData().toString()));
             }
             // 如果达到可以插入的数量，就进行插入
             if (tablet.rowSize == tablet.getMaxRowNumber()) {
@@ -116,8 +116,8 @@ public class DataServiceImpl implements DataService {
                  */
                 try {
                     CheckParameterUtil.checkRangeTime(queryDto);
-                    long start = Long.parseLong(queryDto.getStartTime());
-                    long end = Long.parseLong(queryDto.getStartTime());
+                    long start = queryDto.getStartTime();
+                    long end = queryDto.getStartTime();
                     //删除时间范围内的数据
                     sessionService.deleteData(pathList, start, end);
                     LOGGER.info(testPointPath.toUpperCase());

@@ -54,8 +54,8 @@ public class CheckParameterUtil {
      * 需要多走一个判断
      */
     public static void checkRangeTime(QueryDto queryDto){
-        String startTime = queryDto.getStartTime();
-        String endTime = queryDto.getEndTime();
+        String startTime = String.valueOf(queryDto.getStartTime());
+        String endTime = String.valueOf(queryDto.getEndTime());
         if (StringUtils.isBlank(startTime)
                 || StringUtils.isBlank(endTime)
                 || StringUtils.isEmpty(startTime)
@@ -64,6 +64,9 @@ public class CheckParameterUtil {
         }
         long start = Long.parseLong(startTime);
         long end = Long.parseLong(endTime);
+        if (start < Constants.NUMBER_0L || end < Constants.NUMBER_0L){
+            throw new ServiceException(VALID_ERROR.getCode(), "时间参数输入有误");
+        }
         if (start >= end){
             throw new ServiceException(VALID_ERROR.getCode(), "查询开始时间不能大于结束时间");
         }
@@ -78,12 +81,12 @@ public class CheckParameterUtil {
             throw new ServiceException(VALID_ERROR.getCode(), "插入数据不能为空");
         }
         dataList.forEach(data -> {
-            if (StringUtils.isBlank(data.getTime())
-                    || StringUtils.isEmpty(data.getTime())){
+            if (StringUtils.isBlank(data.getTime().toString())
+                    || StringUtils.isEmpty(data.getTime().toString())){
                 LOGGER.warn("插入数据中有非法的时间:{}", data.getTime());
             }
-            if (StringUtils.isBlank(data.getData())
-                    || StringUtils.isEmpty(data.getData())){
+            if (StringUtils.isBlank(data.getData().toString())
+                    || StringUtils.isEmpty(data.getData().toString())){
                 LOGGER.warn("插入数据中有非法数据:{}", data.getData());
             }
         });

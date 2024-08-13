@@ -19,7 +19,7 @@ public class DataDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Data{
-        private String time;
-        private String data;
+        private Long time;
+        private Object data;
     }
 }

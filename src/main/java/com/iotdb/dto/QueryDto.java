@@ -28,11 +28,11 @@ public class QueryDto {
     /**
      * 开始时间
      */
-    private String startTime;
+    private Long startTime;
     /**
      * 结束时间
      */
-    private String endTime;
+    private Long endTime;
     /**
      * 极值类型
      */
