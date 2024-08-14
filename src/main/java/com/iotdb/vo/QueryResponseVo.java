@@ -13,8 +13,16 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QueryResponseVo {
-    private String dataSource;
-    private String serviceType;
-    // 点位数据
+    /**
+     * 数据源
+     */
+    private int dataSource;
+    /**
+     * 业务类型
+     */
+    private int serviceType;
+    /**
+     * 点位数据
+     */
     private List<DataVo> dataVoList;
 }
