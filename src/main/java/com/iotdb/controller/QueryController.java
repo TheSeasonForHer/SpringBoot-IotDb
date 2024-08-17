@@ -1,14 +1,24 @@
 package com.iotdb.controller;
 
+import com.iotdb.utils.CheckParameterUtil;
+import com.iotdb.utils.TSDataTypeUtil;
 import com.iotdb.vo.Result;
 import com.iotdb.dto.QueryDto;
 import com.iotdb.service.QueryService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.apache.iotdb.isession.pool.SessionDataSetWrapper;
+import org.apache.iotdb.rpc.IoTDBConnectionException;
+import org.apache.iotdb.rpc.StatementExecutionException;
+import org.apache.iotdb.session.pool.SessionPool;
+import org.apache.tsfile.read.common.Field;
+import org.apache.tsfile.read.common.RowRecord;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @author tjb
  * @date 2024/8/2
@@ -75,5 +85,36 @@ public class QueryController {
         return Result.ok(queryService.queryDataGroupBySession(queryDto));
     }
 
+    @Resource
+    private SessionPool sessionPool;
+    @GetMapping("/")
+    public void get(){
+        try {
+            SessionDataSetWrapper dataSetWrapper = sessionPool.executeQueryStatement("select * from root.wf01.wt01,root.wf01.wt02,root.wf01.wt03");
+            // device-timestamp-measurement
+            List<String> columnNameList = dataSetWrapper.iterator().getColumnNameList();
+            List<String> columnTypeList = dataSetWrapper.iterator().getColumnTypeList();
+            Map<String, Map<Long, Map<Long, List<Object>>>> resultMap = new ConcurrentHashMap<>();
+            while(dataSetWrapper.hasNext()){
+                RowRecord next = dataSetWrapper.next();
+
+                long timestamp = next.getTimestamp();
+                List<Field> fields = next.getFields();
+                String[] deviceString = fields.get(0).toString().split("\\.");
+                String device = deviceString[deviceString.length - 1];
+
+                Map<Long, Map<Long, List<Object>>> longMapMap = resultMap.computeIfAbsent(device, k -> new ConcurrentHashMap<>());
+                Map<Long, List<Object>> longListMap = longMapMap.computeIfAbsent(timestamp, k -> new ConcurrentHashMap<>());
+                fields.remove(0);
+                fields.forEach(field -> {
+                    longListMap.computeIfAbsent(timestamp, k -> new ArrayList<>()).add(TSDataTypeUtil.getValueByFiled(field));
+                });
+            }
+
+            dataSetWrapper.close();
+        } catch (IoTDBConnectionException | StatementExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }

@@ -1,5 +1,7 @@
 package com.iotdb.service.impl;
 
+import com.iotdb.common.ServiceTypeConstants;
+import com.iotdb.config.IoTDBProperties;
 import com.iotdb.dto.QueryDto;
 import com.iotdb.dto.TimeSeriesDto;
 import com.iotdb.exception.ServiceException;
@@ -8,6 +10,7 @@ import com.iotdb.utils.CheckParameterUtil;
 import com.iotdb.utils.SQLBuilder;
 import com.iotdb.utils.TSDataTypeUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.iotdb.isession.SessionDataSet;
 import org.apache.iotdb.isession.pool.SessionDataSetWrapper;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
@@ -33,6 +36,8 @@ public class QueryServiceImpl implements QueryService {
 
     @Resource
     private SessionPool sessionService;
+    @Resource
+    private IoTDBProperties properties;
 
     @Override
     public List<Map<String, Object>>  queryByMeasurementList(QueryDto queryDto) {
@@ -340,5 +345,37 @@ public class QueryServiceImpl implements QueryService {
         for (int i = 0; i < columnNames.size(); i++) {
             map.put(columnNames.get(i), fields.get(i).getDataType() != null ? TSDataTypeUtil.getValueByFiled(fields.get(i)) : null);
         }
+    }
+
+    /**
+     * 用字节数组的方式放回数据
+     * @param dataSet : 查询出来数据
+     * @return : 返回值 byte[]
+     */
+    public byte[] getResulWithByteList(SessionDataSetWrapper dataSet, List<String> measurements){
+        try{
+            List<String> columnNames = dataSet.getColumnNames();
+            // 拼接返回结果
+            StringBuilder resultBuilder = getResultHeader();
+
+            while (dataSet.hasNext()){
+                measurements.forEach(measurement->{
+
+                });
+            }
+            return null;
+        }catch (IoTDBConnectionException | StatementExecutionException e) {
+            throw new ServiceException(SYSTEM_ERROR.getCode(), e.getMessage());
+        }
+    }
+
+    /**
+     * 返回拼接头
+     * @return
+     */
+    public StringBuilder getResultHeader(){
+        return new StringBuilder()
+                .append(properties.getHost())
+                .append(ServiceTypeConstants.HISTORY.getCode());
     }
 }
