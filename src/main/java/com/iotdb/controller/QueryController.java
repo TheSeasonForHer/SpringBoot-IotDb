@@ -1,6 +1,5 @@
 package com.iotdb.controller;
 
-import com.iotdb.utils.CheckParameterUtil;
 import com.iotdb.utils.TSDataTypeUtil;
 import com.iotdb.vo.Result;
 import com.iotdb.dto.QueryDto;
@@ -85,36 +84,88 @@ public class QueryController {
         return Result.ok(queryService.queryDataGroupBySession(queryDto));
     }
 
-    @Resource
-    private SessionPool sessionPool;
-    @GetMapping("/")
-    public void get(){
-        try {
-            SessionDataSetWrapper dataSetWrapper = sessionPool.executeQueryStatement("select * from root.wf01.wt01,root.wf01.wt02,root.wf01.wt03");
-            // device-timestamp-measurement
-            List<String> columnNameList = dataSetWrapper.iterator().getColumnNameList();
-            List<String> columnTypeList = dataSetWrapper.iterator().getColumnTypeList();
-            Map<String, Map<Long, Map<Long, List<Object>>>> resultMap = new ConcurrentHashMap<>();
-            while(dataSetWrapper.hasNext()){
-                RowRecord next = dataSetWrapper.next();
-
-                long timestamp = next.getTimestamp();
-                List<Field> fields = next.getFields();
-                String[] deviceString = fields.get(0).toString().split("\\.");
-                String device = deviceString[deviceString.length - 1];
-
-                Map<Long, Map<Long, List<Object>>> longMapMap = resultMap.computeIfAbsent(device, k -> new ConcurrentHashMap<>());
-                Map<Long, List<Object>> longListMap = longMapMap.computeIfAbsent(timestamp, k -> new ConcurrentHashMap<>());
-                fields.remove(0);
-                fields.forEach(field -> {
-                    longListMap.computeIfAbsent(timestamp, k -> new ArrayList<>()).add(TSDataTypeUtil.getValueByFiled(field));
-                });
-            }
-
-            dataSetWrapper.close();
-        } catch (IoTDBConnectionException | StatementExecutionException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    @Resource
+//    private SessionPool sessionPool;
+//    @GetMapping("/")
+//    public void get(){
+//        try {
+//            SessionDataSetWrapper dataSetWrapper = sessionPool.executeQueryStatement("select * from root.zh,root.zh1");
+//            // device-timestamp-measurement
+//            List<String> columnNameList = dataSetWrapper.iterator().getColumnNameList();
+//            List<String> deviceName = new ArrayList<>(columnNameList);
+//            deviceName.remove(0);
+//            if (columnNameList.size() <= 1){
+//                return;
+//            }
+//            List<String> columnTypeList = dataSetWrapper.iterator().getColumnTypeList();
+//            columnTypeList.remove(0);
+//
+//            // 所有设备的名称
+//            List<String> deviceNames = getDeviceName(deviceName);
+//            // 设备分区，测点分区，时间分区，数据(构建分区框架)
+//            Map<String, Map<String, Map<Long, List<Object>>>> resultMapNew = getStringMapMap(deviceNames, deviceName);
+//            // 获取到字符串拼接数据
+//            StringBuilder resultDataWi = getResultDataWithString(dataSetWrapper, deviceNames, deviceName, resultMapNew);
+//            System.out.println(resultMapNew);
+//            dataSetWrapper.close();
+//        } catch (IoTDBConnectionException | StatementExecutionException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+//
+//    private static StringBuilder getResultDataWithString(SessionDataSetWrapper dataSetWrapper, List<String> deviceNames, List<String> deviceName, Map<String, Map<String, Map<Long, List<Object>>>> resultMapNew) throws IoTDBConnectionException, StatementExecutionException {
+//        while(dataSetWrapper.hasNext()){
+//            // 每一行数据
+//            RowRecord next = dataSetWrapper.next();
+//            // 每一行的时间
+//            long timestamp = next.getTimestamp();
+//            // 每一行对应的数据，没有时间列,但是可能是包括了其他测点的数据
+//            // align by device 第一列肯定是设备 + 其他列的数据
+//            List<Field> fields = next.getFields();
+//            for (int i = 0; i < deviceNames.size(); i++) {
+//                // 获取测点
+//                String[] testPoint = deviceName.get(i).split("\\.");
+//                resultMapNew.get(deviceNames.get(i))
+//                        .get(testPoint[testPoint.length - 1])
+//                        .computeIfAbsent(timestamp, value -> new ArrayList<>())
+//                        .add(fields.get(i).getDataType() != null ?
+//                                TSDataTypeUtil.getValueByFiled(fields.get(i))
+//                                : null
+//                        );
+//
+//            }
+//            System.out.println("data"+ next);
+//        }
+//        return null;
+//    }
+//
+//    private static Map<String, Map<String, Map<Long, List<Object>>>> getStringMapMap(List<String> deviceNames, List<String> deviceName) {
+//        Map<String, Map<String, Map<Long, List<Object>>>> resultMapNew = new ConcurrentHashMap<>();
+//        // 设备遍历
+//        deviceNames.forEach(name -> {
+//            // 通过设备进行分组，然后将结果存储到map中去
+//            resultMapNew.computeIfAbsent(name,value -> new ConcurrentHashMap<>());
+//            // 遍历测点， 通过测点的遍历，将设备和测点进行绑定在一起
+//            deviceName.forEach(testPoint -> {
+//                String[] split = testPoint.split("\\.");
+//                // 这里判断设备名称是否相等，然后再将测点添加进去
+//                if (name.equals(split[split.length - 2])){
+//                    resultMapNew.get(name).computeIfAbsent(split[split.length - 1], value -> new ConcurrentHashMap<>());
+//                }
+//            });
+//
+//        });
+//        return resultMapNew;
+//    }
+//
+//    private static List<String> getDeviceName(List<String> deviceName) {
+//        List<String> names = new ArrayList<>(deviceName.size());
+//        deviceName.forEach(name -> {
+//            String[] deviceString = name.split("\\.");
+//            String device = deviceString[deviceString.length - 2];
+//            names.add(device);
+//        });
+//        return names;
+//    }
 
 }
