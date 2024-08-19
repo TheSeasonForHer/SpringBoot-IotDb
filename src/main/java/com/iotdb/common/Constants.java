@@ -5,9 +5,12 @@ package com.iotdb.common;
  * @date 2024/8/2
  */
 public interface Constants {
-    //业务常量
+    // 业务常量
     Long NUMBER_0L = 0L;
     int NUMBER_1 = 1;
     Long NUMBER_20000L = 20000L;
+    // 分隔符常量
+    char JOIN_CHAR = '|';
+    char TIME_VALUE = ':';
 
 }
