@@ -3,6 +3,7 @@ package com.iotdb.utils;
 
 import cn.hutool.core.date.DateTime;
 import com.iotdb.exception.ServiceException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tsfile.enums.TSDataType;
 import org.apache.tsfile.read.common.Field;
 import static com.iotdb.enums.StatusCodeEnum.VALID_ERROR;
@@ -13,12 +14,17 @@ import static com.iotdb.enums.StatusCodeEnum.VALID_ERROR;
  */
 public class TSDataTypeUtil {
     public static TSDataType getTsDataType(String type) {
+        if (StringUtils.isEmpty(type) || StringUtils.isBlank(type)){
+            throw new ServiceException(VALID_ERROR.getCode(), "参数类型不能为空");
+        }
         String upperCase = type.toUpperCase();
         switch (upperCase) {
             case "BOOLEAN":
                 return TSDataType.BOOLEAN;
+            case "INT32":
             case "INT":
                 return TSDataType.INT32;
+            case "INT64":
             case "LONG":
                 return TSDataType.INT64;
             case "FLOAT":
@@ -27,7 +33,7 @@ public class TSDataTypeUtil {
                 return TSDataType.DOUBLE;
             case "STRING":
                 return TSDataType.STRING;
-            case "TXT":
+            case "TEXT":
                 return TSDataType.TEXT;
             case "TIMESTAMP":
                 return TSDataType.TIMESTAMP;
