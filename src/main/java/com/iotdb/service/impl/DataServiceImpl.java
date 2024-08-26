@@ -65,16 +65,20 @@ public class DataServiceImpl implements DataService {
         List<MeasurementSchema> schemaList = new ArrayList<>();
         TSDataType dataType = TSDataTypeUtil.getTsDataType(timeSeriesDto.getTestPointType());
         schemaList.add(new MeasurementSchema(timeSeriesDto.getTestPointName(), dataType));
-
         // 构建 tablet 并且填充数据
         Tablet tablet = new Tablet(devicePath, schemaList, dataList.size());
+        // 填充数据
         for (long row = 0; row < dataList.size(); row++) {
             int rowIndex = tablet.rowSize++;
             // 添加时间戳
             tablet.addTimestamp(rowIndex, dataList.get((int) row).getTime());
             // 根据每一行测点数量进行插入数据
-            for (int s = 0; s < 1; s++) {
-                tablet.addValue(schemaList.get(s).getMeasurementId(), rowIndex, TSDataTypeUtil.getValueByData(dataType.getType(),dataList.get((int) row).getData().toString()));
+            for (int s = 0; s < schemaList.size(); s++) {
+                tablet.addValue(
+                        schemaList.get(s).getMeasurementId(),
+                        rowIndex,
+                        TSDataTypeUtil.getValueByData(dataType.getType(), dataList.get((int) row).getData().toString())
+                );
             }
             // 如果达到可以插入的数量，就进行插入
             if (tablet.rowSize == tablet.getMaxRowNumber()) {

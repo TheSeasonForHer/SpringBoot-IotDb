@@ -4,6 +4,7 @@ spring:
   devtools:
     restart:
       enabled: true
+#数据库配置
 iotdb:
   host: 127.0.0.1
   port: 6667
