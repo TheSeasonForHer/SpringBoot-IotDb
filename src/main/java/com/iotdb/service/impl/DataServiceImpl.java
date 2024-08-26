@@ -1,6 +1,6 @@
 package com.iotdb.service.impl;
 
-import com.iotdb.common.Constants;
+import static cn.hutool.core.text.StrPool.*;
 import com.iotdb.dto.DataDto;
 import com.iotdb.dto.QueryDto;
 import com.iotdb.dto.TimeSeriesDto;
@@ -61,7 +61,7 @@ public class DataServiceImpl implements DataService {
                  .collect(Collectors.toList());
 
         // 封装要插入的测点
-        String devicePath = timeSeriesDto.getPath() + "." + timeSeriesDto.getDevice();
+        String devicePath = timeSeriesDto.getPath() + DOT + timeSeriesDto.getDevice();
         List<MeasurementSchema> schemaList = new ArrayList<>();
         TSDataType dataType = TSDataTypeUtil.getTsDataType(timeSeriesDto.getTestPointType());
         schemaList.add(new MeasurementSchema(timeSeriesDto.getTestPointName(), dataType));
@@ -102,7 +102,7 @@ public class DataServiceImpl implements DataService {
             CheckParameterUtil.checkQueryTimeSeriesParameter(timeSeriesDto);
             //  添加路径
             List<String> pathList = new ArrayList<>();
-            String testPointPath = timeSeriesDto.getPath() + "." + timeSeriesDto.getDevice() + "." + timeSeriesDto.getTestPointName();
+            String testPointPath = timeSeriesDto.getPath() + DOT + timeSeriesDto.getDevice() + DOT + timeSeriesDto.getTestPointName();
             pathList.add(testPointPath);
             try {
                 if (!sessionService.checkTimeseriesExists(testPointPath)) {

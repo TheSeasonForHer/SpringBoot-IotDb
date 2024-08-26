@@ -2,7 +2,6 @@ package com.iotdb.service.impl;
 
 import com.iotdb.common.Constants;
 import com.iotdb.common.ServiceTypeConstants;
-import com.iotdb.config.IoTDBProperties;
 import com.iotdb.dto.QueryDto;
 import com.iotdb.dto.TimeSeriesDto;
 import com.iotdb.enums.StatusCodeEnum;
