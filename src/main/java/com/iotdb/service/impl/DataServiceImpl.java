@@ -52,12 +52,8 @@ public class DataServiceImpl implements DataService {
         CheckParameterUtil.checkInsertData(dataList);
         // 过滤掉空数数据
          dataList = dataDto.getDataList().stream()
-                .filter(
-                        data -> !StringUtils.isBlank(data.getTime().toString())
-                                && !StringUtils.isEmpty(data.getTime().toString())
-                                && !StringUtils.isBlank(data.getData().toString())
-                                && !StringUtils.isEmpty(data.getData().toString())
-                )
+                 .filter(Objects::nonNull)
+                 .filter(data -> CheckParameterUtil.checkStrings(data.getTime().toString(),data.getData().toString()))
                  .collect(Collectors.toList());
 
         // 封装要插入的测点

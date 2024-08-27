@@ -108,4 +108,18 @@ public class CheckParameterUtil {
             throw new ServiceException(VALID_ERROR.getCode(), "测点参数数量与需求不对等");
         }
     }
+
+    /**
+     * 判断传入字符串是否为空
+     * @param strings 字符串(可以传入多个)
+     * @return
+     */
+    public static boolean checkStrings(String... strings){
+        for (String string : strings) {
+            if (StringUtils.isBlank(string) || StringUtils.isEmpty(string)){
+                return false;
+            }
+        }
+        return true;
+    }
 }
