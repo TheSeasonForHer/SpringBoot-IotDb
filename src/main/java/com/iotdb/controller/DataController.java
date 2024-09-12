@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.List;
+
 /**
  * @author tjb
  * @date 2024/8/2
@@ -28,6 +30,11 @@ public class DataController {
     @PostMapping("/insertDataByTimeSeries")
     public Result<?> insertData(@RequestBody DataDto dataDto){
         boolean b = dataService.insertRecordByTimeSeries(dataDto);
+        return b ? Result.ok("插入成功") : Result.fail("插入失败");
+    }
+    @PostMapping("/insertDataByBatchTimeSeries")
+    public Result<?> insertData(@RequestBody List<DataDto> dataDtoList){
+        boolean b = dataService.insertRecordByBatchTimeSeries(dataDtoList);
         return b ? Result.ok("插入成功") : Result.fail("插入失败");
     }
 

@@ -133,4 +133,53 @@ public class DataServiceImpl implements DataService {
         throw new ServiceException(VALID_ERROR.getCode(), "时间序列参数异常");
     }
 
+    @Override
+    public boolean insertRecordByBatchTimeSeries(List<DataDto> dataDtoList) {
+//        // 判断参数
+//        TimeSeriesDto timeSeriesDto = dataDto.getTimeSeriesDto();
+//        List<DataDto.Data> dataList = dataDto.getDataList();
+//        if (Objects.isNull(timeSeriesDto)){
+//            throw new ServiceException(VALID_ERROR.getCode(), "时间序列参数不能为空");
+//        }
+//        CheckParameterUtil.checkTimeSeriesParameterIsBlank(timeSeriesDto);
+//        CheckParameterUtil.checkInsertData(dataList);
+//        // 过滤掉空数数据
+//        dataList = dataDto.getDataList().stream()
+//                .filter(Objects::nonNull)
+//                .filter(data -> CheckParameterUtil.checkStrings(data.getTime().toString(),data.getData().toString()))
+//                .collect(Collectors.toList());
+//
+//        // 封装要插入的测点
+//        String devicePath = timeSeriesDto.getPath() + DOT + timeSeriesDto.getDevice();
+//        List<MeasurementSchema> schemaList = new ArrayList<>();
+//        TSDataType dataType = TSDataTypeUtil.getTsDataType(timeSeriesDto.getTestPointType());
+//        schemaList.add(new MeasurementSchema(timeSeriesDto.getTestPointName(), dataType));
+//        // 构建 tablet 并且填充数据
+//        Tablet tablet = new Tablet(devicePath, schemaList, dataList.size());
+//        // 填充数据
+//        for (long row = 0; row < dataList.size(); row++) {
+//            int rowIndex = tablet.rowSize++;
+//            // 添加时间戳
+//            tablet.addTimestamp(rowIndex, dataList.get((int) row).getTime());
+//            // 根据每一行测点数量进行插入数据
+//            for (int s = 0; s < schemaList.size(); s++) {
+//                tablet.addValue(
+//                        schemaList.get(s).getMeasurementId(),
+//                        rowIndex,
+//                        TSDataTypeUtil.getValueByData(dataType.getType(), dataList.get((int) row).getData().toString())
+//                );
+//            }
+//            // 如果达到可以插入的数量，就进行插入
+//            if (tablet.rowSize == tablet.getMaxRowNumber()) {
+//                try{
+//                    sessionService.insertTablet(tablet, true);
+//                }catch (IoTDBConnectionException | StatementExecutionException e){
+//                    throw new ServiceException(VALID_ERROR.getCode(), e.getMessage());
+//                }
+//                tablet.reset();
+//            }
+//        }
+        return true;
+    }
+
 }

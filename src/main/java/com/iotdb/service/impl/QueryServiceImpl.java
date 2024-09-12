@@ -58,12 +58,13 @@ public class QueryServiceImpl implements QueryService {
             String queryByLimit = new SQLBuilder()
                     .select(String.join(COMMA, queryDto.getMeasurements()))
                     .from(devicePath)
+                    .orderByTimeDesc()
                     .limit(queryDto.getReachMaxSize() != null
                             && queryDto.getReachMaxSize() > NUMBER_0L ?
                                queryDto.getReachMaxSize() : NUMBER_20000L
                     )
                     .build();
-            LOGGER.info(queryByLimit.toUpperCase());
+            LOGGER.info("查询语句为：{}", queryByLimit.toUpperCase());
 
             // 封装结果集
             SessionDataSetWrapper dataSet = sessionService.executeQueryStatement(queryByLimit);

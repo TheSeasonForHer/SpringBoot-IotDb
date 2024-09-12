@@ -1,5 +1,7 @@
 package com.iotdb.utils;
 
+import cn.hutool.db.sql.SqlBuilder;
+
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,6 +92,15 @@ public class SQLBuilder {
 
     public SQLBuilder limit(long limit) {
         sql.append(" LIMIT ").append(limit);
+        return this;
+    }
+
+    public SQLBuilder orderByTimeDesc() {
+        sql.append("order by time DESC");
+        return this;
+    }
+    public SQLBuilder orderByTimeAES() {
+        sql.append("order by time ASC");
         return this;
     }
 
