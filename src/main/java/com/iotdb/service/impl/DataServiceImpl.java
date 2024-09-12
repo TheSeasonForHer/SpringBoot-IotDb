@@ -13,11 +13,13 @@ import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.pool.SessionPool;
 import org.apache.tsfile.enums.TSDataType;
+import org.apache.tsfile.read.common.Path;
 import org.apache.tsfile.write.record.Tablet;
 import org.apache.tsfile.write.schema.MeasurementSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -60,9 +62,13 @@ public class DataServiceImpl implements DataService {
         String devicePath = timeSeriesDto.getPath() + DOT + timeSeriesDto.getDevice();
         List<MeasurementSchema> schemaList = new ArrayList<>();
         TSDataType dataType = TSDataTypeUtil.getTsDataType(timeSeriesDto.getTestPointType());
-        schemaList.add(new MeasurementSchema(timeSeriesDto.getTestPointName(), dataType));
+
+        Path correctPath = new Path(devicePath, timeSeriesDto.getTestPointName(), true);
+
+        schemaList.add(new MeasurementSchema(correctPath.getMeasurement(), dataType));
+
         // 构建 tablet 并且填充数据
-        Tablet tablet = new Tablet(devicePath, schemaList, dataList.size());
+        Tablet tablet = new Tablet(correctPath.getDevice(), schemaList, dataList.size());
         // 填充数据
         for (long row = 0; row < dataList.size(); row++) {
             int rowIndex = tablet.rowSize++;
@@ -134,7 +140,7 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public boolean insertRecordByBatchTimeSeries(List<DataDto> dataDtoList) {
+    public boolean insertRecordByBatchTimeSeries(List<TimeSeriesDto> timeSeriesDtos, List<List<DataDto.Data>> dataDtoList) {
 //        // 判断参数
 //        TimeSeriesDto timeSeriesDto = dataDto.getTimeSeriesDto();
 //        List<DataDto.Data> dataList = dataDto.getDataList();

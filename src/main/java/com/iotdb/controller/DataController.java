@@ -1,5 +1,6 @@
 package com.iotdb.controller;
 
+import com.iotdb.dto.TimeSeriesDto;
 import com.iotdb.vo.Result;
 import com.iotdb.dto.DataDto;
 import com.iotdb.dto.QueryDto;
@@ -33,8 +34,8 @@ public class DataController {
         return b ? Result.ok("插入成功") : Result.fail("插入失败");
     }
     @PostMapping("/insertDataByBatchTimeSeries")
-    public Result<?> insertData(@RequestBody List<DataDto> dataDtoList){
-        boolean b = dataService.insertRecordByBatchTimeSeries(dataDtoList);
+    public Result<?> insertData(@RequestBody List<TimeSeriesDto> timeSeriesDtos, @RequestBody List<List<DataDto.Data>> dataDtoList){
+        boolean b = dataService.insertRecordByBatchTimeSeries(timeSeriesDtos, dataDtoList);
         return b ? Result.ok("插入成功") : Result.fail("插入失败");
     }
 

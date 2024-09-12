@@ -2,7 +2,9 @@ package com.iotdb.service;
 
 import com.iotdb.dto.DataDto;
 import com.iotdb.dto.QueryDto;
+import com.iotdb.dto.TimeSeriesDto;
 import com.iotdb.vo.Result;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -24,5 +26,5 @@ public interface DataService {
      */
     public boolean deleteDataByTimeRange(QueryDto queryDto);
 
-    public boolean insertRecordByBatchTimeSeries(List<DataDto> dataDtoList);
+    public boolean insertRecordByBatchTimeSeries(List<TimeSeriesDto> timeSeriesDtos, List<List<DataDto.Data>> dataDtoList);
 }
