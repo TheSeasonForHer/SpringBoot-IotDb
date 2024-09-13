@@ -10,5 +10,5 @@ import java.util.Map;
  * @Date：2024/9/13 0:32
  */
 public interface ExportService {
-    public List<Map<String, Object>> export(QueryDto  queryDto);
+    public void export(QueryDto  queryDto);
 }
