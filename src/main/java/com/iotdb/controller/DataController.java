@@ -29,12 +29,12 @@ public class DataController {
      * @param dataDto : 数据
      * @return 成功失败
      */
-    @PostMapping("/insertDataByTimeSeries")
+    @PostMapping("/insertDataByMeasurementOfOneDevice")
     public Result<?> insertData(@RequestBody DataDto dataDto){
         boolean b = dataService.insertRecordByTimeSeries(dataDto);
         return b ? Result.ok("插入成功") : Result.fail("插入失败");
     }
-    @PostMapping("/insertDataByBatchTimeSeries")
+    @PostMapping("/insertDataByMeasurementsOfOneDevice")
     public Result<?> insertData(@RequestBody DataDtos dataDtos){
         boolean b = dataService.insertRecordByBatchTimeSeries(dataDtos);
         return b ? Result.ok("插入成功") : Result.fail("插入失败");

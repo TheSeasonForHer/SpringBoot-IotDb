@@ -1,6 +1,8 @@
 package com.iotdb.service.impl;
 
 import static cn.hutool.core.text.StrPool.*;
+
+import com.iotdb.common.Constants;
 import com.iotdb.dto.DataDto;
 import com.iotdb.dto.DataDtos;
 import com.iotdb.dto.QueryDto;
@@ -26,6 +28,7 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.iotdb.common.Constants.*;
 import static com.iotdb.enums.StatusCodeEnum.FAIL;
 import static com.iotdb.enums.StatusCodeEnum.VALID_ERROR;
 
@@ -186,7 +189,7 @@ public class DataServiceImpl implements DataService {
          * 2,   2,  2,  2
          * 3,   3,  3,  3
          */
-        Tablet tablet = new Tablet(devicePath, schemaList, dataLists.get(0).size());
+        Tablet tablet = new Tablet(devicePath, schemaList, Math.min(dataLists.get(0).size(), NUMBER_10000));
         tablet.initBitMaps();
         // 数据插入
         // 一个测点的数据大小
@@ -198,6 +201,7 @@ public class DataServiceImpl implements DataService {
             // 根据每一行测点数量进行插入数据
             for (int s = 0; s < schemaList.size(); s++) {
                 String value = dataLists.get(s).get((int) row).getData().toString();
+                // 空值标记
                 if (StringUtils.isBlank(value) || StringUtils.isEmpty(value)){
                     tablet.bitMaps[s].mark((int) row);
                 }

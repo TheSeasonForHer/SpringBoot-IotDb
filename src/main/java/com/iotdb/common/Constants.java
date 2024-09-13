@@ -9,6 +9,7 @@ public interface Constants {
     int NUMBER_REVERSE_1 = -1;
     Long NUMBER_0L = 0L;
     int NUMBER_1 = 1;
+    int NUMBER_10000 = 10000;
     Long NUMBER_20000L = 20000L;
     // 分隔符常量
     char JOIN_CHAR = '|';
