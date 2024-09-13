@@ -1,6 +1,7 @@
 package com.iotdb.service;
 
 import com.iotdb.dto.DataDto;
+import com.iotdb.dto.DataDtos;
 import com.iotdb.dto.QueryDto;
 import com.iotdb.dto.TimeSeriesDto;
 import com.iotdb.vo.Result;
@@ -26,5 +27,10 @@ public interface DataService {
      */
     public boolean deleteDataByTimeRange(QueryDto queryDto);
 
-    public boolean insertRecordByBatchTimeSeries(List<TimeSeriesDto> timeSeriesDtos, List<List<DataDto.Data>> dataDtoList);
+    /**
+     * 批量插入数据（1个设备，多个测点）
+       @param dataDtos  ： 插入的数据信息
+     * @return
+     */
+    public boolean insertRecordByBatchTimeSeries(DataDtos dataDtos);
 }

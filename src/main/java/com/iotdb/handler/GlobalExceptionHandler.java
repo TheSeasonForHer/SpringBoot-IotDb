@@ -45,8 +45,8 @@ public class GlobalExceptionHandler {
      * @param e 异常
      * @return 接口异常信息
      */
-    @ExceptionHandler(value = Exception.class)
-    public Result<?> errorHandler(Exception e) {
-        return Result.fail(SYSTEM_ERROR.getCode(), SYSTEM_ERROR.getDesc() +","+ e.getMessage());
-    }
+//    @ExceptionHandler(value = Exception.class)
+//    public Result<?> errorHandler(Exception e) {
+//        return Result.fail(SYSTEM_ERROR.getCode(), SYSTEM_ERROR.getDesc() +","+ e.getMessage());
+//    }
 }
