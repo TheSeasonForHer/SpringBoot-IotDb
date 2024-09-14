@@ -96,11 +96,11 @@ public class SQLBuilder {
     }
 
     public SQLBuilder orderByTimeDesc() {
-        sql.append("order by time DESC");
+        sql.append(" order by time DESC");
         return this;
     }
     public SQLBuilder orderByTimeAES() {
-        sql.append("order by time ASC");
+        sql.append(" order by time ASC");
         return this;
     }
 

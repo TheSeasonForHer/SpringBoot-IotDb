@@ -16,8 +16,8 @@ import javax.annotation.Resource;
 public class ExportController {
     @Resource
     private ExportService exportService;
-    @GetMapping("/exportData")
-    public Result<?> exportData( QueryDto queryDto){
+    @PostMapping("/exportData")
+    public Result<?> exportData(@RequestBody QueryDto queryDto){
         exportService.export(queryDto);
         return Result.ok();
     }
