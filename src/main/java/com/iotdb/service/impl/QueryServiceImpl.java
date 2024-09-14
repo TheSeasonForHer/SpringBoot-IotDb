@@ -69,11 +69,11 @@ public class QueryServiceImpl implements QueryService {
             // 封装结果集
             SessionDataSetWrapper dataSet = sessionService.executeQueryStatement(queryByLimit);
             // 以前的List<Map>结果集返回
-            // List<Map<String, Object>> resultList = getResultList(dataSet);
+            List<Map<String, Object>> resultList = getResultList(dataSet);
             // 换成byte[] 返回数据
-            byte[] resultByte = getResultByte(dataSet);
+            //byte[] resultByte = getResultByte(dataSet);
             dataSet.close();
-            return Result.ok(resultByte);
+            return Result.ok(resultList);
         }catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new ServiceException(SYSTEM_ERROR.getCode(),e.getMessage());
         }
@@ -110,10 +110,10 @@ public class QueryServiceImpl implements QueryService {
 
             // 封装结果集
             SessionDataSetWrapper dataSet = sessionService.executeQueryStatement(queryByTimeRangeBuilder.build());
-            // List<Map<String, Object>> resultList = getResultList(dataSet);
-            byte[] resultByte = getResultByte(dataSet);
+            List<Map<String, Object>> resultList = getResultList(dataSet);
+            //byte[] resultByte = getResultByte(dataSet);
             dataSet.close();
-            return Result.ok(resultByte);
+            return Result.ok(resultList);
         }catch (IoTDBConnectionException | StatementExecutionException e) {
             throw new ServiceException(SYSTEM_ERROR.getCode(), e.getMessage());
         }
