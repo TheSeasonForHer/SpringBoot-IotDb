@@ -25,8 +25,8 @@ import static com.iotdb.enums.StatusCodeEnum.FAIL;
 public class ThreadPool {
     @Getter
     private static final ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(8, 16,
-            60, TimeUnit.MINUTES,
-            new ArrayBlockingQueue<>(5000),
+            60, TimeUnit.SECONDS,
+            new ArrayBlockingQueue<>(1000),
             new ThreadFactoryBuilder().setNamePrefix("http-nio-7779-exec-export-task").build(),
             new DiscardPolicy());
 
@@ -36,7 +36,12 @@ public class ThreadPool {
     private static class DiscardPolicy implements RejectedExecutionHandler {
         @Override
         public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            throw new ServiceException(FAIL.getCode(),"超过最大队列长度%s"+  r.toString());
+            throw new ServiceException(
+                    FAIL.getCode(),
+                    String.format("任务提交失败,正在排队中,排队人数是%d, 请稍后重试",
+                            executor.getActiveCount()
+                    )
+            );
         }
     }
 

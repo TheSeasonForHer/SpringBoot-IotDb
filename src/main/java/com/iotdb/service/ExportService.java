@@ -2,8 +2,6 @@ package com.iotdb.service;
 
 import com.iotdb.dto.QueryDto;
 
-import java.util.List;
-import java.util.Map;
 
 /**
  * @Author：tjb

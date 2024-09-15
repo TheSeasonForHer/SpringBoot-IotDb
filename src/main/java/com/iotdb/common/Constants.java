@@ -13,6 +13,6 @@ public interface Constants {
     Long NUMBER_20000L = 20000L;
     // 分隔符常量
     char JOIN_CHAR = '|';
-    char TIME_VALUE = ':';
+    String DOWNLOAD_URL_PREFIX = "file:///";
 
 }

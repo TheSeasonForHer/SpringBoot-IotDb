@@ -6,9 +6,13 @@ spring:
       enabled: true
 #数据库配置
 iotdb:
-  host: 172.20.31.6
+  host: 127.0.0.1
   port: 6667
   username: root
   password: root
   maxSize: 10
-
+  nodeUrls:
+file:
+  need_dataType: true
+  storage_path: D:\\
+  download_pre: http://localhost:8080/download
