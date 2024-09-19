@@ -15,6 +15,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import static cn.hutool.core.text.StrPool.*;
 import javax.annotation.Resource;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static com.iotdb.enums.StatusCodeEnum.FAIL;
@@ -71,6 +76,13 @@ public class ExportServiceImpl extends ExportData implements ExportService {
         String storagePath = fileStorageProperties.getStorage_path();
         if (!CheckParameterUtil.checkStrings(storagePath)){
             throw new ServiceException(FAIL.getCode(), "存储路径不明确");
+        }
+        Path path = Paths.get(storagePath);
+
+        // 检查文件夹是否存在
+        boolean exists = Files.exists(path, java.nio.file.LinkOption.NOFOLLOW_LINKS);
+        if (!exists){
+            throw new ServiceException(FAIL.getCode(), "存储目标地址不存在");
         }
         writer.writeToFileAsync(sqlBuilder.build(), fileStorageProperties);
     }

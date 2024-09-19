@@ -5,6 +5,7 @@ spring:
     restart:
       enabled: true
 #数据库配置
+#host和nodeUrls不配置也要写出来
 iotdb:
   host: 127.0.0.1
   port: 6667
@@ -14,5 +15,7 @@ iotdb:
   nodeUrls:
 file:
   need_dataType: true
-  storage_path: D:\\
-  download_pre: http://localhost:8080/download
+#  定位到目录
+  storage_path: C:\SoftWare\
+#  download不能修改，只需要改localhost就行
+  download_pre: http://localhost:8080/download/
