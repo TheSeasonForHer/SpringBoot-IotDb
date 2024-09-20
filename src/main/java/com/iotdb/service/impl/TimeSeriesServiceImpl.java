@@ -9,6 +9,7 @@ import com.iotdb.utils.TSDataTypeUtil;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.pool.SessionPool;
+import org.apache.tsfile.enums.TSDataType;
 import org.apache.tsfile.file.metadata.enums.CompressionType;
 import org.apache.tsfile.file.metadata.enums.TSEncoding;
 import org.springframework.stereotype.Service;
@@ -18,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.iotdb.enums.StatusCodeEnum.SYSTEM_ERROR;
-import static com.iotdb.enums.StatusCodeEnum.VALID_ERROR;
+import static com.iotdb.enums.StatusCodeEnum.*;
+
 /**
  * @author tjb
  * @date 2024/8/2
@@ -49,13 +50,15 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
             String path = seriesDto.getPath() + "." + seriesDto.getDevice() + "." + seriesDto.getTestPointName();
             try {
                 if(!sessionService.checkTimeseriesExists(path)){
+                    TSDataType tsDataType = TSDataTypeUtil.getTsDataType(seriesDto.getTestPointType());
                     sessionService.createTimeseries(path,
-                            TSDataTypeUtil.getTsDataType(seriesDto.getTestPointType()),
+                            tsDataType,
                             TSEncoding.PLAIN,
                             CompressionType.SNAPPY
                     );
                     timeSeriesNameList.add(path);
                 }
+                throw new ServiceException(FAIL.getCode(), "已经存在了" + path);
             } catch (IoTDBConnectionException | StatementExecutionException e) {
                 throw new ServiceException(SYSTEM_ERROR.getCode(), e.getMessage());
             }
