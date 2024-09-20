@@ -62,8 +62,14 @@ public class CheckParameterUtil {
                 || StringUtils.isEmpty(endTime)){
             throw new ServiceException(VALID_ERROR.getCode(), "查询时间不能为空");
         }
-        long start = Long.parseLong(startTime);
-        long end = Long.parseLong(endTime);
+        long start = 0;
+        long end = 0;
+        try{
+             start = Long.parseLong(startTime);
+             end = Long.parseLong(endTime);
+        }catch (Exception e){
+            throw new ServiceException(FAIL.getCode(), "解析时间出问题了");
+        }
         if (start < Constants.NUMBER_0L || end < Constants.NUMBER_0L){
             throw new ServiceException(VALID_ERROR.getCode(), "时间参数输入有误");
         }

@@ -48,6 +48,6 @@ public class DataController {
     @PostMapping("/deleteDataByTimeRange")
     public Result<?> deleteDataByTimeRange(@RequestBody QueryDto queryDto){
         boolean b = dataService.deleteDataByTimeRange(queryDto);
-        return b ? Result.ok("删除成功") : Result.fail("删除失败");
+        return b ? Result.ok() : Result.fail();
     }
 }
